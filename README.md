@@ -20,8 +20,8 @@ ai-engine-core/
 │
 ├── engine/                # Shared AI logic and utility tools
 ├── modules/
-│   ├── placement_test/    # Placement exam scoring
-│   └── lesson_activities/ # Lesson writing activity scoring
+│   ├── placement/    # Placement exam scoring
+│   └──activities/ # Lesson writing activity scoring
 ├── config/                # Rubric and model configuration
 ├── api/                   # Optional FastAPI/Flask integration
 ├── tests/                 # Unit tests
