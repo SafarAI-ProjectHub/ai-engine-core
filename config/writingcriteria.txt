@@ -1,0 +1,44 @@
+Criterion 1: Task Achievement / Content Relevance
+Score 5: Fully addresses all parts of the task; ideas are relevant and developed.
+
+Score 3: Mostly addresses the task; minor irrelevance or weak development.
+
+Score 1: Partially or poorly addresses the task; off-topic or too limited.
+
+Score 0: Does not address the task at all.
+
+Criterion 2: Coherence and Cohesion
+Score 5: Ideas are well organized; logical flow with a variety of linking words.
+
+Score 3: Some organization and logical flow; limited cohesive devices.
+
+Score 1: Disorganized or repetitive; weak or unclear connections.
+
+Score 0: No clear structure or logic.
+
+Criterion 3: Lexical Resource (Vocabulary Use)
+Score 5: Wide range of vocabulary used accurately and appropriately.
+
+Score 3: Adequate vocabulary for the task; occasional misuse or repetition.
+
+Score 1: Very limited vocabulary; frequent repetition or inappropriate word use.
+
+Score 0: Vocabulary too limited to complete the task.
+
+Criterion 4: Grammatical Range and Accuracy
+Score 5: Excellent control of grammar; wide range of structures with few or no errors.
+
+Score 3: Good use of grammar; some complexity attempted; some errors present.
+
+Score 1: Mostly simple sentences with frequent errors.
+
+Score 0: Grammar prevents understanding.
+
+Criterion 5: Spelling, Punctuation, and Mechanics
+Score 5: Very few or no errors; writing is polished and professional.
+
+Score 3: Some spelling and punctuation errors; do not impede understanding.
+
+Score 1: Frequent errors; meaning occasionally unclear.
+
+Score 0: Errors severely hinder understanding.
