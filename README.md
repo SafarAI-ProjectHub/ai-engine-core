@@ -1,98 +1,85 @@
-# 📝 Writing Correction API (FastAPI + GPT-4)
+# 🧠 AI Engine Core – Writing & Activity Grading with GPT-4
 
-A FastAPI-based web service that provides AI-powered feedback and grading for student writing using OpenAI's GPT-4 API. This project reads evaluation criteria from a file, processes student input, and returns a detailed score and feedback response.
-
----
-
-## 📁 Project Structure
-
-```
-.
-├── main.py                # Main FastAPI application
-├── writingcriteria.txt    # Text file with grading criteria
-├── requirements.txt       # Python dependencies
-├── .env                   # Contains the OpenAI API key (not committed)
-├── Include/
-├── Lib/
-└── Scripts/               # Virtual environment executables
-```
+This project powers AI-based evaluation for student writing tasks using OpenAI’s GPT-4. Designed for the [Safar AI](https://safarai.org) platform, it supports **rubric-based scoring**, **structured feedback**, and **modular architecture** for different assessment types like placement tests and writing activities.
 
 ---
 
-## ✅ Prerequisites
+## 🔍 Features
+
+- ✅ **Modular Architecture:** Easily extendable to support multiple grading types (e.g., placement, essay).
+- 🧠 **Automated Scoring:** Uses GPT-4 to grade student input based on configurable rubrics.
+- 📝 **Structured Feedback:** Returns JSON with total score and detailed feedback.
+- ⚙️ **Configurable Rubrics:** Criteria are defined in external files (e.g., `writingcriteria.txt`).
+- 🌐 **API-Ready:** Includes FastAPI interface for integration with frontend or other services.
+- 📁 **Notebook-Friendly:** Works with Jupyter notebooks for development or experimentation.
+
+---
+
+## 🗂 Project Structure
+
+```
+ai-engine-core/
+│
+├── engine/                  # Shared logic (to be added)
+├── modules/
+│   ├── placement/           # Placement test grading (future)
+│   └── activities/          # Lesson writing activity grading (future)
+│
+├── config/
+│   └── writingcriteria.txt  # Rubric for writing correction
+│
+├── api/
+│   └── main.py              # FastAPI entrypoint
+│
+├── data/                    # Example input data (optional)
+├── notebooks/               # Development notebooks (e.g., activity_dev.ipynb)
+├── tests/                   # Unit tests
+├── tools/                   # Utility scripts
+│
+├── requirements.txt         # Python dependencies
+├── .env                     # OpenAI key (NOT committed)
+└── README.md                # You're reading it!
+```
+
+---
+
+## ✅ Requirements
 
 - Python 3.9+
-- An OpenAI API key
-- Git (optional for version control)
-- Recommended: Virtual environment (already included)
+- OpenAI GPT-4 access key
+- Virtual environment (recommended)
 
----
-
-## ⚙️ Virtual Environment Setup
-
-This repo includes a virtual environment. If you'd rather set up a fresh one:
-
-### 1. Create a Virtual Environment
+### 🧪 Setup Instructions
 
 ```bash
+git clone https://github.com/your-org/ai-engine-core.git
+cd ai-engine-core
 python -m venv .
-```
-
-### 2. Activate the Environment
-
-- **PowerShell:**
-  ```powershell
-  .\Scripts\Activate.ps1
-  ```
-  _Tip: If blocked by policy, run:_
-  ```powershell
-  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-  ```
-
-- **Command Prompt:**
-  ```cmd
-  Scripts\activate.bat
-  ```
-
-- **Git Bash / WSL:**
-  ```bash
-  source Scripts/activate
-  ```
-
----
-
-## 📦 Installing Dependencies
-
-```bash
+source Scripts/activate        # Or source venv/bin/activate on Linux/Mac
 pip install -r requirements.txt
 ```
 
 ---
 
-## 🔐 Setup Your `.env` File
+## 🔐 .env File
 
-Create a file named `.env` in the root directory with:
+Create a `.env` file in the project root:
 
 ```env
 OPEN_AI_KEY=your_openai_api_key
 ```
 
-> **Never share or hardcode your API key.** Use `.env` for security.
-> **Add .env to .gitignore.**
-
-
+**⚠️ Do NOT share this key. Make sure `.env` is in `.gitignore`.**
 
 ---
 
-## ▶️ Running the Application
-
-Start the API with:
+## ▶️ Running the API (FastAPI)
 
 ```bash
-python main.py
+python api/main.py
 ```
 
-Once running, the server will be available at:
+Access the API at:
 
 ```
 http://0.0.0.0:9999/
@@ -104,7 +91,7 @@ http://0.0.0.0:9999/
 
 ### `GET /`
 
-Health check endpoint.
+Simple health check.
 
 ```json
 { "Hello": "World" }
@@ -114,9 +101,9 @@ Health check endpoint.
 
 ### `POST /correction`
 
-Submit a writing task for AI correction.
+Send a student’s writing for AI-based correction.
 
-#### Request JSON
+#### Sample Request
 
 ```json
 {
@@ -125,7 +112,7 @@ Submit a writing task for AI correction.
 }
 ```
 
-#### Response JSON
+#### Sample Response
 
 ```json
 {
@@ -134,90 +121,89 @@ Submit a writing task for AI correction.
 }
 ```
 
-#### What It Does
+> Internally uses GPT-4 and the `writingcriteria.txt` rubric to return a structured evaluation.
 
-- Reads grading criteria from `writingcriteria.txt`
-- Builds a structured GPT-4 prompt
-- Receives and returns a JSON object with:
-  - `score` (0–25 total)
-  - `feedback` (textual advice)
+---
+
+## 🧪 Rubric Format
+
+File: `config/writingcriteria.txt`
+
+```
+1. Task Achievement / Content Relevance
+2. Coherence and Cohesion
+3. Lexical Resource (Vocabulary)
+4. Grammatical Range and Accuracy
+5. Spelling, Punctuation, Mechanics
+```
+
+Each criterion is scored on a scale of: `0`, `1`, `3`, or `5`.
 
 ---
 
 ## 🧠 Technologies Used
 
-| Tool        | Purpose                      |
-|-------------|------------------------------|
-| FastAPI     | API development              |
-| Uvicorn     | ASGI server                  |
-| Pydantic    | Input data validation        |
-| OpenAI API  | AI-powered feedback engine   |
-| python-dotenv | Loads environment variables|
+| Tool           | Purpose                         |
+|----------------|----------------------------------|
+| FastAPI        | API development                 |
+| Uvicorn        | ASGI server                     |
+| Pydantic       | Input validation                |
+| OpenAI API     | GPT-4 language model            |
+| python-dotenv  | Load secret keys from `.env`    |
 
 ---
 
-## 🧪 Criteria File Format
+## 🧪 Testing (Optional)
 
-**writingcriteria.txt**
-
-You can define your own evaluation rubric, e.g.:
-
-```
-1. Grammar and Syntax
-2. Coherence
-3. Relevance
-4. Vocabulary
-5. Structure
-```
-
-The system grades each on a scale: `0, 1, 3, or 5` and calculates a total score.
-
----
-
-## ✅ Best Practices
-
-- ✔ Keep sensitive keys in `.env`
-- ✔ Use `requirements.txt` to share dependencies
-- ✔ Use `POST` for any state-changing operations
-- ✔ Validate all user inputs with `Pydantic`
-- ✔ Avoid overly strict grading — your prompt already includes leniency
-
----
-
-## 🛡 Security Note
-
-For production:
-- Never expose raw OpenAI keys publicly
-- Use HTTPS
-- Add API authentication or rate limiting
-- Consider containerization (e.g., Docker)
-
----
-
-## 📤 Deployment (Optional)
-
-For production environments, use:
+To test logic in isolation (planned):
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 9999 --reload
+pytest tests/test_*.py
 ```
 
-You can also use Docker or deploy to platforms like:
+You can also create and test logic via:
+
+```python
+from modules.activities.grader import get_correction
+result = get_correction("Describe your last holiday.", "I goed to beach and swam.")
+```
+
+---
+
+## 🚀 Deployment (Production)
+
+Recommended command:
+
+```bash
+uvicorn api.main:app --host 0.0.0.0 --port 9999 --reload
+```
+
+Or use a platform like:
 - [Render](https://render.com)
 - [Railway](https://railway.app)
 - [Fly.io](https://fly.io)
 
 ---
 
+## 🛡 Security Best Practices
+
+- Use `.env` to protect your API key.
+- Use HTTPS for deployed versions.
+- Add authentication or rate limiting for public APIs.
+- Consider containerization (e.g., Docker) for production.
+
+---
+
+## 📌 Future Plans
+
+- [ ] Add `placement/` grading logic
+- [ ] Refactor grading logic to `engine/`
+- [ ] Enable multi-language feedback
+- [ ] Add support for H5P JSON or SCORM input
+- [ ] Test coverage and CI integration
+
+---
+
 ## 🪄 License
 
-For educational and demo purposes.
-
----
-
-## ✍️ Author
-
-**Abdallah Esam Al-Nsour**  
-Computer Engineer & AI Enthusiast
-
----
+This project is for educational and demo purposes.
