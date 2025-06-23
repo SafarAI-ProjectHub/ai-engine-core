@@ -1,130 +1,223 @@
-# AI Engine Core
+# 📝 Writing Correction API (FastAPI + GPT-4)
 
-`ai-engine-core` is the central module powering AI-based evaluation tasks in the Safar platform. It includes shared logic for automated correction, structured feedback generation, and rubric-based scoring using large language models such as GPT-4.
-
-## 🔍 Features
-
-- **Modular Architecture:** Supports multiple AI modules (e.g., placement tests, lesson activity grading).
-- **Automated Scoring:** Uses GPT-4 to evaluate student inputs against configurable rubrics.
-- **Feedback Generation:** Returns structured and human-readable feedback.
-- **Extensible Criteria:** Reads evaluation rubrics from external files.
-- **JSON Output Support:** Enables integration with other systems or frontends.
-- **Notebooks + API Integration:** Development-friendly structure supporting both notebooks and API endpoints.
+A FastAPI-based web service that provides AI-powered feedback and grading for student writing using OpenAI's GPT-4 API. This project reads evaluation criteria from a file, processes student input, and returns a detailed score and feedback response.
 
 ---
 
-## 🧠 Project Structure
+## 📁 Project Structure
 
 ```
-ai-engine-core/
-│
-├── engine/                # Shared AI logic and utility tools
-├── modules/
-│   ├── placement_test/    # Placement exam scoring
-│   └── lesson_activities/ # Lesson writing activity scoring
-├── config/                # Rubric and model configuration
-├── api/                   # Optional FastAPI/Flask integration
-├── tests/                 # Unit tests
-├── data/                  # Sample input data
-├── notebooks/             # Development notebooks
-└── tools/                 # Utility scripts (e.g., H5P processors)
+.
+├── main.py                # Main FastAPI application
+├── writingcriteria.txt    # Text file with grading criteria
+├── requirements.txt       # Python dependencies
+├── .env                   # Contains the OpenAI API key (not committed)
+├── Include/
+├── Lib/
+└── Scripts/               # Virtual environment executables
 ```
 
 ---
 
-## ⚙️ Requirements
+## ✅ Prerequisites
 
-- Python 3.x
-- [openai](https://pypi.org/project/openai/)
-- An OpenAI API Key with GPT-4 access
+- Python 3.9+
+- An OpenAI API key
+- Git (optional for version control)
+- Recommended: Virtual environment (already included)
 
-Install dependencies:
+---
+
+## ⚙️ Virtual Environment Setup
+
+This repo includes a virtual environment. If you'd rather set up a fresh one:
+
+### 1. Create a Virtual Environment
+
 ```bash
-pip install openai
+python -m venv .
 ```
 
-Set your OpenAI key via environment variable or `.env`:
+### 2. Activate the Environment
+
+- **PowerShell:**
+  ```powershell
+  .\Scripts\Activate.ps1
+  ```
+  _Tip: If blocked by policy, run:_
+  ```powershell
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+  ```
+
+- **Command Prompt:**
+  ```cmd
+  Scripts\activate.bat
+  ```
+
+- **Git Bash / WSL:**
+  ```bash
+  source Scripts/activate
+  ```
+
+---
+
+## 📦 Installing Dependencies
+
 ```bash
-export OPENAI_API_KEY=your-key-here
+pip install -r requirements.txt
 ```
 
 ---
 
-## 🛡️ Security Note
+## 🔐 Setup Your `.env` File
 
-**Do not share your OpenAI API key publicly.**  
-Always use `.env` or environment variables to store sensitive keys.
+Create a file named `.env` in the root directory with:
+
+```env
+OPEN_AI_KEY=your_openai_api_key
+```
+
+> **Never share or hardcode your API key.** Use `.env` for security.
+> **Add .env to .gitignore.**
+
+
 
 ---
 
-# ✍️ Module: Lesson Activity Grader
+## ▶️ Running the Application
 
-This module evaluates short student writing answers (e.g., in Safar lessons) based on five criteria.
+Start the API with:
 
-### Rubric Criteria
-
-The rubric is located at:
-```
-config/activity_grading_criteria.txt
+```bash
+python main.py
 ```
 
-It includes the following criteria, each scored as 0, 1, 3, or 5:
+Once running, the server will be available at:
 
-1. **Task Achievement / Content Relevance**
-2. **Coherence and Cohesion**
-3. **Lexical Resource (Vocabulary Use)**
-4. **Grammatical Range and Accuracy**
-5. **Spelling, Punctuation, and Mechanics**
-
----
-
-### Sample Code
-
-You can test lesson activity grading via `notebooks/activity_grading_dev.ipynb` or by importing `lesson_grader.py`.
-
-```python
-from modules.lesson_activities.lesson_grader import get_correction
-
-question = "Describe your last holiday."
-text = "i go to beach and swim. was very fun"
-result = get_correction(question, text)
-
-print(result)
-# Output:
-# {
-#   "score": 17,
-#   "feedback": "Good effort. Work on grammar and structure for better coherence."
-# }
+```
+http://0.0.0.0:9999/
 ```
 
 ---
 
-### Output Format
+## 📡 API Endpoints
+
+### `GET /`
+
+Health check endpoint.
+
+```json
+{ "Hello": "World" }
+```
+
+---
+
+### `POST /correction`
+
+Submit a writing task for AI correction.
+
+#### Request JSON
 
 ```json
 {
-  "score": 21,
-  "feedback": "Well structured with minor grammar mistakes. Excellent vocabulary use."
+  "question": "Describe your last vacation.",
+  "text": "I goed to the beach and it was fun."
 }
 ```
 
----
+#### Response JSON
 
-## 🧪 Testing
-
-Test the lesson grader logic using:
-
-```bash
-pytest tests/test_lesson_activities.py
+```json
+{
+  "score": 17,
+  "feedback": "You made a few grammar mistakes like 'goed' instead of 'went'. Try to add more detail next time..."
+}
 ```
 
+#### What It Does
+
+- Reads grading criteria from `writingcriteria.txt`
+- Builds a structured GPT-4 prompt
+- Receives and returns a JSON object with:
+  - `score` (0–25 total)
+  - `feedback` (textual advice)
+
 ---
 
-## 📌 Notes
+## 🧠 Technologies Used
 
-- Future modules (e.g., for placement exams or essay scoring) will follow similar structure.
-- Each module should expose a single `get_correction()` interface.
+| Tool        | Purpose                      |
+|-------------|------------------------------|
+| FastAPI     | API development              |
+| Uvicorn     | ASGI server                  |
+| Pydantic    | Input data validation        |
+| OpenAI API  | AI-powered feedback engine   |
+| python-dotenv | Loads environment variables|
 
 ---
 
-**Developed as part of the SAFAR AI learning platform.**
+## 🧪 Criteria File Format
+
+**writingcriteria.txt**
+
+You can define your own evaluation rubric, e.g.:
+
+```
+1. Grammar and Syntax
+2. Coherence
+3. Relevance
+4. Vocabulary
+5. Structure
+```
+
+The system grades each on a scale: `0, 1, 3, or 5` and calculates a total score.
+
+---
+
+## ✅ Best Practices
+
+- ✔ Keep sensitive keys in `.env`
+- ✔ Use `requirements.txt` to share dependencies
+- ✔ Use `POST` for any state-changing operations
+- ✔ Validate all user inputs with `Pydantic`
+- ✔ Avoid overly strict grading — your prompt already includes leniency
+
+---
+
+## 🛡 Security Note
+
+For production:
+- Never expose raw OpenAI keys publicly
+- Use HTTPS
+- Add API authentication or rate limiting
+- Consider containerization (e.g., Docker)
+
+---
+
+## 📤 Deployment (Optional)
+
+For production environments, use:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 9999 --reload
+```
+
+You can also use Docker or deploy to platforms like:
+- [Render](https://render.com)
+- [Railway](https://railway.app)
+- [Fly.io](https://fly.io)
+
+---
+
+## 🪄 License
+
+For educational and demo purposes.
+
+---
+
+## ✍️ Author
+
+**Abdallah Esam Al-Nsour**  
+Computer Engineer & AI Enthusiast
+
+---

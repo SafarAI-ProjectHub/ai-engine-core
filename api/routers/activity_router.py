@@ -1,1 +1,0 @@
-# Lesson activities API router
