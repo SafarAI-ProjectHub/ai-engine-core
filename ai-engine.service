@@ -1,0 +1,12 @@
+[Unit]
+Description=AI Engine FastAPI Service
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/var/www/html/ai-engine-core
+ExecStart=/var/www/html/ai-engine-core/venv/bin/python api/main.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
