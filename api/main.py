@@ -14,7 +14,7 @@ with open("config/activitywritingcriteria.txt", "r", encoding="utf-8") as file:
     # read the file content
     criteria = file.read()
 
-app = FastAPI()
+app = FastAPI(root_path="/ai")
 
 @app.get("/")
 def read_root():
@@ -48,4 +48,4 @@ def get_correction(request: CorrectionRequest):
 
 
 
-uvicorn.run(app, host = "0.0.0.0", port = 9999)
+# uvicorn.run(app, host = "0.0.0.0", port = 9999)
