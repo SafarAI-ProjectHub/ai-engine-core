@@ -61,23 +61,24 @@ class translationResponse(BaseModel):
 async def translate_text(request: translationRequest):
     try:
         response = await client.responses.create(
-            model = "gpt-4.1",
+            model = "gpt-5-nano",
             instructions = f"""
-            you are a translation assistant. your task is to
-            Translate the text provided by the user to {request.target_language}. 
-            return the translation with additional information of the translated text if needed.
-            return the translation in a JSON format with the following keys: [ 'translation':'string', 'info' : 'string']
-            ##important##
-            do not return any other text or information.
-            do not return the original text.
-            do not return the translation in any other format.
-            do not answer any question.
-            only translate the text provided by the user.
+            You are a translation assistant. Your ONLY task is to translate the user's text to {request.target_language}.
+            Do NOT answer, explain, or comment on the text. Do NOT provide any information except the translation and a brief description of the translated text.
+            If the input is a question, ONLY translate the question—do NOT answer it.
+            Return the translation in JSON format with these keys: {{ "translation": "string", "info": "string" }}.
+            Do NOT return the original text, any answers, or any extra information.
 
-            ##EXAMPLE##
+            ##EXAMPLES##
             input: "How are you?"
-            output: "translation": "مرحباً، كيف حالك؟", "info": "الجملة هي تحية شائعة تستخدم للاستفسار عن حال الشخص الآخر."
-             """,
+            output: {{ "translation": "مرحباً، كيف حالك؟", "info": "سؤال شائع للتحية." }}
+
+            input: "What is the capital of France?"
+            output: {{ "translation": "ما هي عاصمة فرنسا؟", "info": "سؤال عن عاصمة دولة." }}
+
+            input: "Translate: I love programming."
+            output: {{ "translation": "أحب البرمجة.", "info": "جملة تعبر عن الحب للبرمجة." }}
+            """,
             input = request.text,
         )
         # Parse the response to extract JSON
