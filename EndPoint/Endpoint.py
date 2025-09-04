@@ -102,24 +102,60 @@ class CorrectionResponse(BaseModel):
 async def get_correction(request: CorrectionRequest):
     try:
         criteria_path = Path(__file__).parent.parent / "config" / "activitywritingcriteria.txt"
+        example_path = Path(__file__).parent.parent / "config" / "writingexamples.txt"
+        # read the criteria from the file
         with open(criteria_path, "r", encoding="utf-8") as file:
             # read the file content
             criteria = file.read()
+        with open(example_path, "r", encoding="utf-8") as file:
+            # read the file content
+            examples = file.read()
+            
         response = await client.responses.create(
-            model = "gpt-4.1",
+            model = "gpt-5",
             temperature=0,
-            instructions = f"""You are a professional writing correction assistant. Your task is to evaluate a user's written response based on a given question Here is the question: {request.question} and a set of criteria Here are the criteria: {criteria}. 
-            You must score the response on five criteria: Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy, and Spelling/Punctuation/Mechanics.
-            Each criterion must be scored using one of the following values: 0, 1, 3, or 5. You must sum the individual scores to return a total score out of 25. 
-            Return your result in JSON format with the following keys: ["score": int, "feedback": str].
-            The feedback should be concise, constructive, and supportive, highlighting strengths and offering suggestions for improvement. 
-            If a criterion does not apply to the response, do not penalize the user. Be lenient and fair—always give the benefit of the doubt. 
-            Do not include any additional commentary, explanation of the criteria, or restate the original question or answer. Only return the JSON response.
+            instructions = f"""
+                You are a professional writing correction assistant.
+                Your task is to evaluate a user's written response based on:
 
-            ##EXAMPLE##
-            input: "The dog brown run fastly in park."
-            output: {{ "score": 9, "feedback": "The response shows some understanding of the task but needs improvement in grammar, vocabulary, and mechanics. Consider using 'brown dog' and 'runs quickly'. Sentence structure should be reviewed for better clarity." }}
-            """,
+                The given question: 
+                {request.question}
+
+                The evaluation criteria: 
+                {criteria}
+
+                ##Scoring##
+
+                ##Evaluate the response across five criteria:##
+
+                -Task Achievement
+                -Coherence and Cohesion
+                -Lexical Resource
+                -Grammatical Range and Accuracy
+                -Spelling, Punctuation, and Mechanics
+                -Each criterion must be scored with 0, 1, 3, or 5.
+                -Sum the scores to produce a total out of 25.
+
+                ##Output Format##
+
+                Return the result in JSON with exactly these keys:
+                {
+                "score": int,
+                "feedback": str
+                }
+
+                ##Feedback Instructions##
+
+                -Feedback must be concise, constructive, and supportive.
+                -Address each criterion specifically with strengths and suggestions for improvement.
+                -Point out specific mistakes and show how to correct them.
+                -If a criterion does not apply, do not penalize the user.
+                -Be fair and lenient, always giving the benefit of the doubt.
+                -Do not restate the question or answer, explain the criteria, or add extra commentary.
+
+                ##Example##
+                {examples}""",
+                
             input = request.text
         )
         # Parse the response to extract JSON
@@ -134,3 +170,5 @@ async def get_correction(request: CorrectionRequest):
 
 
 uvicorn.run(app, host = "0.0.0.0", port = 9999)
+
+
