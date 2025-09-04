@@ -1,0 +1,361 @@
+##Example 0##
+Input:
+
+...
+
+Output:
+
+{
+  "score": 0,
+  "feedback": "Task Achievement: No attempt made. Coherence: No content. Lexical Resource: None. Grammar: None. Mechanics: None."
+}
+
+
+##Example 1##
+Input:
+
+asdf qwer
+
+
+Output:
+
+{
+  "score": 1,
+  "feedback": "Task Achievement: Does not address the question. Coherence: No logical flow. Lexical Resource: Random letters, not words. Grammar: Not applicable. Mechanics: Not applicable."
+}
+
+
+##Example 2##
+Input:
+
+Yes.
+
+
+Output:
+
+{
+  "score": 2,
+  "feedback": "Task Achievement: Extremely limited response. Coherence: No explanation or development. Lexical Resource: Single word only. Grammar: Minimal, no sentence variety. Mechanics: Correct period but insufficient content."
+}
+
+
+##Example 3##
+Input:
+
+Good.
+
+
+Output:
+
+{
+  "score": 3,
+  "feedback": "Task Achievement: Too short, does not address the question. Coherence: No logical structure. Lexical Resource: Extremely limited vocabulary. Grammar: Not a full sentence. Mechanics: No errors, but inadequate content."
+}
+
+
+##Example 4##
+Input:
+
+It okay.
+
+
+Output:
+
+{
+  "score": 4,
+  "feedback": "Task Achievement: Minimal response with unclear meaning. Coherence: Weak structure. Lexical Resource: Very limited vocabulary. Grammar: Missing verb form (‘is okay’). Mechanics: Missing punctuation."
+}
+
+
+##Example 5##
+Input:
+
+The sky blue.
+
+
+Output:
+
+{
+  "score": 5,
+  "feedback": "Task Achievement: Incomplete idea. Coherence: Understandable but weakly expressed. Lexical Resource: Limited vocabulary. Grammar: Missing verb (‘is’). Mechanics: Lacks punctuation for clarity."
+}
+
+
+##Example 6##
+Input:
+
+She like music.
+
+
+Output:
+
+{
+  "score": 6,
+  "feedback": "Task Achievement: Basic response, partially addresses the task. Coherence: Clear but underdeveloped. Lexical Resource: Very limited. Grammar: Incorrect verb form (‘likes’). Mechanics: Needs punctuation at the end."
+}
+
+
+##Example 7##
+Input:
+
+The dog in the park.
+
+
+Output:
+
+{
+  "score": 7,
+  "feedback": "Task Achievement: Incomplete thought. Coherence: Idea is clear but undeveloped. Lexical Resource: Simple words. Grammar: Missing verb (‘is’). Mechanics: Sentence fragment, needs a period."
+}
+
+
+##Example 8##
+Input:
+
+She go school.
+
+
+Output:
+
+{
+  "score": 8,
+  "feedback": "Task Achievement: Basic attempt at a sentence. Coherence: Meaning somewhat clear. Lexical Resource: Very limited. Grammar: Missing article (‘to school’), incorrect verb form (‘go’ → ‘goes’). Mechanics: Missing punctuation."
+}
+
+
+##Example 9##
+Input:
+
+The dog brown run fastly in park.
+
+
+Output:
+
+{
+  "score": 9,
+  "feedback": "Task Achievement: Idea is understandable but weakly developed. Coherence: Sentence structure is awkward. Lexical Resource: Limited vocabulary; ‘fastly’ should be ‘quickly’. Grammar: Incorrect word order (‘brown dog’) and verb form (‘runs’ instead of ‘run’). Mechanics: Missing article (‘in the park’)."
+}
+
+
+##Example 10##
+Input:
+
+He go to market yesterday.
+
+
+Output:
+
+{
+  "score": 10,
+  "feedback": "Task Achievement: Communicates the main idea but lacks detail. Coherence: Basic structure. Lexical Resource: Limited variety. Grammar: Wrong tense (‘go’ → ‘went’). Mechanics: Missing article (‘the market’)."
+}
+
+
+##Example 11##
+Input:
+
+He go to the market yesterday and buy apple.
+
+
+Output:
+
+{
+  "score": 11,
+  "feedback": "Task Achievement: Communicates the main idea but lacks detail. Coherence: Meaning is clear but sentence flow is basic. Lexical Resource: Limited; ‘buy’ should be ‘bought’. Grammar: Errors in tense and subject-verb agreement. Mechanics: Missing article (‘an apple’)."
+}
+
+
+##Example 12##
+Input:
+
+I like read book yesterday.
+
+
+Output:
+
+{
+  "score": 12,
+  "feedback": "Task Achievement: Attempted response, but unclear meaning. Coherence: Weak flow. Lexical Resource: Basic vocabulary. Grammar: Incorrect tense and word form (‘like’ → ‘liked’, ‘read book’ → ‘read a book’). Mechanics: Needs punctuation."
+}
+
+
+##Example 13##
+Input:
+
+The climate change is serious problem, and peoples should take action quick.
+
+
+Output:
+
+{
+  "score": 13,
+  "feedback": "Task Achievement: Addresses the issue but not fully developed. Coherence: Clear but needs stronger flow. Lexical Resource: Adequate but repetitive (‘peoples’ → ‘people’). Grammar: Incorrect article usage (‘a serious problem’). Mechanics: Missing adverb form (‘quick’ → ‘quickly’)."
+}
+
+
+##Example 14##
+Input:
+
+Education is important, it help us learn.
+
+
+Output:
+
+{
+  "score": 14,
+  "feedback": "Task Achievement: Addresses the task but underdeveloped. Coherence: Meaning is clear but sentence is awkward. Lexical Resource: Adequate but simple vocabulary. Grammar: Verb agreement error (‘help’ → ‘helps’). Mechanics: Comma splice (‘important, it’ → ‘important. It’)."
+}
+
+
+##Example 15##
+Input:
+
+Technology is very important. Technology helps people. Technology makes life easier, and technology improves communication.
+
+
+Output:
+
+{
+  "score": 15,
+  "feedback": "Task Achievement: Addresses the topic but with limited depth. Coherence: Clear but repetitive. Lexical Resource: Overuse of ‘technology’; synonyms would help. Grammar: Correct but overly simple. Mechanics: No major errors."
+}
+
+
+##Example 16##
+Input:
+
+Children should study science because it is useful for future job and for society.
+
+
+Output:
+
+{
+  "score": 16,
+  "feedback": "Task Achievement: Responds clearly to the task. Coherence: Logical but basic. Lexical Resource: Adequate, could be more varied. Grammar: Missing plural (‘jobs’). Mechanics: Correct punctuation overall."
+}
+
+
+##Example 17##
+Input:
+
+Studying abroad gives students better opportunities, but it can also be very expensive and stressful.
+
+
+Output:
+
+{
+  "score": 17,
+  "feedback": "Task Achievement: Covers both advantages and disadvantages. Coherence: Well-organized. Lexical Resource: Good word choice (‘opportunities’, ‘stressful’). Grammar: Mostly accurate, though sentence variety could be improved. Mechanics: Correct punctuation."
+}
+
+
+##Example 18##
+Input:
+
+Healthy eating is necessary. People should reduce junk food and eat more fruits and vegetables for long life.
+
+
+Output:
+
+{
+  "score": 18,
+  "feedback": "Task Achievement: Clearly addresses the topic. Coherence: Organized, but slightly repetitive. Lexical Resource: Adequate but could be more advanced. Grammar: Mostly correct. Mechanics: Should add ‘a’ before ‘long life’ for accuracy."
+}
+
+
+##Example 19##
+Input:
+
+The internet has changed the way we communicate, learn, and work, offering many advantages but also presenting new challenges.
+
+
+Output:
+
+{
+  "score": 19,
+  "feedback": "Task Achievement: Addresses the task with development. Coherence: Smooth structure. Lexical Resource: Strong word use (‘advantages’, ‘challenges’). Grammar: Accurate sentence structure. Mechanics: Comma use is correct but could be simplified."
+}
+
+
+##Example 20##
+Input:
+
+Traveling abroad allows people to explore new cultures and ideas, making them more open-minded and knowledgeable.
+
+
+Output:
+
+{
+  "score": 20,
+  "feedback": "Task Achievement: Strongly addresses the task. Coherence: Logical and smooth. Lexical Resource: Good variety. Grammar: Accurate and fluent. Mechanics: Polished, no issues."
+}
+
+
+##Example 21##
+Input:
+
+Online learning provides flexibility and allows students to learn at their own pace. However, it also requires strong self-discipline, which some learners may lack.
+
+
+Output:
+
+{
+  "score": 21,
+  "feedback": "Task Achievement: Fully addresses the question with balanced arguments. Coherence: Well-organized with contrast. Lexical Resource: Strong and precise. Grammar: Mostly accurate; good variety. Mechanics: Could add a comma after ‘flexibility’ for smoother readability."
+}
+
+
+##Example 22##
+Input:
+
+Sports not only improve health but also build teamwork and discipline, which are valuable skills for life.
+
+
+Output:
+
+{
+  "score": 22,
+  "feedback": "Task Achievement: Fully addresses the question. Coherence: Smooth and logical. Lexical Resource: Strong word choice (‘teamwork’, ‘discipline’). Grammar: Accurate, though could expand with more complexity. Mechanics: Polished and correct."
+}
+
+
+##Example 23##
+Input:
+
+Reading books expands knowledge, stimulates imagination, and helps people relax after a long day.
+
+
+Output:
+
+{
+  "score": 23,
+  "feedback": "Task Achievement: Fully meets the task. Coherence: Clear progression of ideas. Lexical Resource: Varied and precise. Grammar: Strong and accurate. Mechanics: Correct punctuation and spelling."
+}
+
+
+##Example 24##
+Input:
+
+Climate change threatens ecosystems, economies, and human health. Immediate action is necessary to reduce emissions and shift towards sustainable energy.
+
+
+Output:
+
+{
+  "score": 24,
+  "feedback": "Task Achievement: Excellent development of the topic. Coherence: Logical and persuasive. Lexical Resource: Rich vocabulary. Grammar: Very strong, with complex but accurate structures. Mechanics: No errors, polished writing."
+}
+
+
+##Example 25##
+Input:
+
+Climate change is one of the greatest challenges of our time. Governments must act urgently by investing in renewable energy, enforcing strict environmental laws, and encouraging citizens to adopt sustainable lifestyles.
+
+
+Output:
+
+{
+  "score": 25,
+  "feedback": "Task Achievement: Fully developed, relevant, and persuasive argument. Coherence: Smooth and logical progression. Lexical Resource: Wide range of precise vocabulary (‘enforcing’, ‘sustainable’). Grammar: Complex and accurate. Mechanics: Polished with no errors."
+}

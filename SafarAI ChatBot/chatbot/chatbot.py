@@ -12,7 +12,7 @@ key = os.getenv("OPEN_AI_KEY")
 
 chat = ChatOpenAI(
     openai_api_key=key,
-    model_name="gpt-4o",
+    model_name="gpt-4.1",
     streaming=True,
     temperature=0.3,
 )

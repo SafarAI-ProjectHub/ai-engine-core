@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Realtime AI Conversation</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" href="logo1.png" type="image/x-icon">
+<style>
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.container {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+h1 {
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+button {
+    background: linear-gradient(90deg, #ff758c, #ff7eb3);
+    border: none;
+    padding: 15px 30px;
+    margin: 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+}
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+button:hover:not(:disabled) {
+    transform: scale(1.05);
+}
+#timer {
+    font-size: 18px;
+    margin-top: 15px;
+}
+canvas {
+    display: block;
+    margin: 20px auto;
+    width: 80vw;
+    height: 80vw;
+    max-width: 400px;
+    max-height: 400px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+}
+label, select {
+    font-size: 16px;
+    margin: 10px;
+    color: white;
+    background: transparent;
+}
+select {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    padding: 8px;
+    border-radius: 10px;
+    color: rgb(26, 25, 25);
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Safar AI Conversation</h1>
+
+    <!-- Level selection dropdown -->
+    <label for="levelSelect">Choose your English Level:</label>
+    <select id="levelSelect">
+        <option value="Beginner">Beginner</option>
+        <option value="Intermediate" selected>Intermediate</option>
+        <option value="Advanced">Advanced</option>
+    </select>
+
+    <br><br>
+    <button id="startBtn">Start Conversation</button>
+    <button id="endBtn" disabled>End Conversation</button>
+    <div id="timer">00:00</div>
+    <canvas id="waveformCanvas"></canvas>
+</div>
+
+<script>
+const BACKEND_URL = "http://127.0.0.1:9000";
+let pc, localStream, sessionActive = false;
+let timerInterval, startTime;
+
+// Timer
+function startTimer() {
+    startTime = Date.now();
+    timerInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const minutes = String(Math.floor(elapsed / 60000)).padStart(2,'0');
+        const seconds = String(Math.floor((elapsed % 60000)/1000)).padStart(2,'0');
+        document.getElementById("timer").textContent = `${minutes}:${seconds}`;
+    },1000);
+}
+function stopTimer() {
+    clearInterval(timerInterval);
+    document.getElementById("timer").textContent = "00:00";
+}
+
+// Canvas & waveform setup
+const canvas = document.getElementById("waveformCanvas");
+const ctx = canvas.getContext("2d");
+
+function updateCanvasSize() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+}
+window.addEventListener('resize', updateCanvasSize);
+updateCanvasSize();
+
+function animateCircularWave(userData=[], aiData=[]) {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const centerX = canvas.width/2;
+    const centerY = canvas.height/2;
+    const innerRadius = Math.min(canvas.width,canvas.height)/4;
+    const outerRadius = innerRadius + 50;
+    const barsCount = 80;
+
+    // Neon gradients
+    const userGradient = ctx.createRadialGradient(centerX, centerY, innerRadius, centerX, centerY, innerRadius+50);
+    userGradient.addColorStop(0, '#00ffff');
+    userGradient.addColorStop(1, 'rgba(0,255,255,0.1)');
+    const aiGradient = ctx.createRadialGradient(centerX, centerY, outerRadius, centerX, centerY, outerRadius+60);
+    aiGradient.addColorStop(0, '#ff00ff');
+    aiGradient.addColorStop(1, 'rgba(255,0,255,0.1)');
+    ctx.shadowBlur = 15;
+
+    // User waveform (inner)
+    for(let i=0;i<barsCount;i++){
+        const angle = (i/barsCount)*2*Math.PI;
+        const value = userData[i] || 0;
+        const barLength = value/2 + 20;
+        const x1 = centerX + Math.cos(angle)*innerRadius;
+        const y1 = centerY + Math.sin(angle)*innerRadius;
+        const x2 = centerX + Math.cos(angle)*(innerRadius+barLength);
+        const y2 = centerY + Math.sin(angle)*(innerRadius+barLength);
+        ctx.strokeStyle = userGradient;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x1,y1);
+        ctx.lineTo(x2,y2);
+        ctx.stroke();
+    }
+
+    // AI waveform (outer)
+    for(let i=0;i<barsCount;i++){
+        const angle = (i/barsCount)*2*Math.PI;
+        const value = aiData[i] || 0;
+        const barLength = value/2 + 30;
+        const x1 = centerX + Math.cos(angle)*outerRadius;
+        const y1 = centerY + Math.sin(angle)*outerRadius;
+        const x2 = centerX + Math.cos(angle)*(outerRadius+barLength);
+        const y2 = centerY + Math.sin(angle)*(outerRadius+barLength);
+        ctx.strokeStyle = aiGradient;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x1,y1);
+        ctx.lineTo(x2,y2);
+        ctx.stroke();
+    }
+
+    if(sessionActive) requestAnimationFrame(()=>animateCircularWave(userData, aiData));
+}
+
+// Audio analyser
+function createAnalyser(stream) {
+    const audioCtx = new AudioContext();
+    const source = audioCtx.createMediaStreamSource(stream);
+    const analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    source.connect(analyser);
+    return analyser;
+}
+
+function getFrequencyData(analyser) {
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(dataArray);
+    return dataArray;
+}
+
+// Start conversation
+async function startConversation() {
+    document.getElementById("startBtn").disabled = true;
+    document.getElementById("endBtn").disabled = false;
+
+    try {
+        // Get selected level
+        const selectedLevel = document.getElementById("levelSelect").value;
+
+        // Ask backend for session, include level
+        const tokenRes = await fetch(`${BACKEND_URL}/session`, { 
+            method:"POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ level: selectedLevel })
+        });
+        if(!tokenRes.ok) throw new Error(await tokenRes.text());
+        const { client_secret } = await tokenRes.json();
+
+        // Setup mic stream
+        localStream = await navigator.mediaDevices.getUserMedia({audio:true});
+        const userAnalyser = createAnalyser(localStream);
+
+        pc = new RTCPeerConnection();
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+        let aiAnalyser;
+        pc.ontrack = event => {
+            const audioEl = document.createElement("audio");
+            audioEl.srcObject = event.streams[0];
+            audioEl.autoplay = true;
+            document.body.appendChild(audioEl);
+            aiAnalyser = createAnalyser(event.streams[0]);
+        };
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        const sdpRes = await fetch("https://api.openai.com/v1/realtime?model=gpt-realtime",{
+            method:"POST",
+            headers:{
+                "Authorization":`Bearer ${client_secret.value}`,
+                "Content-Type":"application/sdp"
+            },
+            body:offer.sdp
+        });
+        const answerSDP = await sdpRes.text();
+        await pc.setRemoteDescription({type:"answer", sdp:answerSDP});
+
+        sessionActive = true;
+        startTimer();
+
+        function drawLoop(){
+            if(!sessionActive) return;
+            const userData = getFrequencyData(userAnalyser);
+            const aiData = aiAnalyser? getFrequencyData(aiAnalyser):[];
+            animateCircularWave(userData, aiData);
+            requestAnimationFrame(drawLoop);
+        }
+        drawLoop();
+
+    } catch(err){
+        console.error(err);
+        resetButtons();
+    }
+}
+
+// End conversation
+function endConversation(){
+    if(pc) pc.close();
+    if(localStream) localStream.getTracks().forEach(t=>t.stop());
+    sessionActive = false;
+    resetButtons();
+    stopTimer();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function resetButtons(){
+    document.getElementById("startBtn").disabled = false;
+    document.getElementById("endBtn").disabled = true;
+}
+
+document.getElementById("startBtn").addEventListener("click",startConversation);
+document.getElementById("endBtn").addEventListener("click",endConversation);
+</script>
+</body>
+</html>
