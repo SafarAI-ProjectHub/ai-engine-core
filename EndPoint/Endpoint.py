@@ -23,6 +23,43 @@ app = FastAPI(root_path="/ai")
 def read_root():
     return {"Hello": "World"}
 
+class AduioBookRequest(BaseModel):
+    text: str
+    id: int
+class AduioBookResponse(BaseModel):
+    message: str
+    text: str
+    file_path: str
+
+@app.post("/audio-book", response_model=AduioBookResponse)
+async def audio_book(request: AduioBookRequest):
+    try:
+        text_response = await client.responses.create(
+            model="gpt-5",
+            instructions="""you are a storyteller, you will tell the story of the text in a clear and engaging manner. Use a friendly tone and emphasize key points.
+            your story must be in the same language as the text.
+            you are dealing with a children, so you must use simple words and easy to understand.
+            you must not use any special characters or symbols.
+            you must not use any emojis.
+            you must not use any punctuation.
+            """,
+            input=request.text,
+        )
+        speech_file_path = Path(__file__).parent.parent/ "speechfiles" / f"audio-book{request.id}.mp3"
+        async with client.audio.speech.with_streaming_response.create(
+            model="gpt-4o-mini-tts",
+            voice="nova",
+            instructions="""you are a storyteller, you will tell the story of the text in a clear and engaging manner. Use a friendly tone and emphasize key points.""",
+            input=text_response.output_text,
+        ) as audio_response:
+            await audio_response.stream_to_file(speech_file_path)
+        return AduioBookResponse(
+            message="Audio book created successfully",
+            text=text_response.output_text,
+            file_path=str(speech_file_path)
+        )
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
 
 # Text-to-Speech endpoint
 class TextToSpeechRequest(BaseModel):
