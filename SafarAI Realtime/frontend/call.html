@@ -7,6 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <link rel="icon" href="logo1.png" type="image/x-icon">
 <style>
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
 body {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #6e8efb, #a777e3);
@@ -14,39 +18,288 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.8s ease-in-out;
+}
+
+/* Dynamic background themes */
+body.theme-daily-life {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+body.theme-travel {
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+}
+
+body.theme-work-business {
+    background: linear-gradient(135deg, #636e72 0%, #2d3436 100%);
+}
+
+body.theme-hobbies {
+    background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+}
+
+body.theme-school-university {
+    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+}
+
+body.theme-culture-society {
+    background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+}
+
+/* Animated background elements */
+.background-animation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* Smooth theme transitions */
+.theme-transition {
+    transition: background 0.8s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* Travel theme animations */
+.travel-clouds {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300"><path d="M100,200 Q150,150 200,200 T300,200 T400,200 T500,200 T600,200 T700,200 T800,200 T900,200 L1000,200 L1000,300 L0,300 Z" fill="rgba(255,255,255,0.1)"/></svg>') repeat-x;
+    animation: cloudMove 20s linear infinite;
+}
+
+@keyframes cloudMove {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.travel-plane {
+    position: absolute;
+    top: 20%;
+    right: -50px;
+    font-size: 30px;
+    animation: planeFly 15s linear infinite;
+}
+
+@keyframes planeFly {
+    0% { transform: translateX(0) translateY(0); }
+    25% { transform: translateX(-25vw) translateY(-10px); }
+    50% { transform: translateX(-50vw) translateY(5px); }
+    75% { transform: translateX(-75vw) translateY(-5px); }
+    100% { transform: translateX(-100vw) translateY(0); }
+}
+
+/* Office theme animations */
+.office-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.office-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    animation: officeFloat 8s linear infinite;
+}
+
+@keyframes officeFloat {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-10vh) translateX(20px); opacity: 0; }
+}
+
+/* Daily Life theme animations */
+.daily-life-elements {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.daily-element {
+    position: absolute;
+    font-size: 20px;
+    opacity: 0.3;
+    animation: dailyFloat 12s ease-in-out infinite;
+}
+
+@keyframes dailyFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+/* Hobbies theme animations */
+.hobbies-sparkles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.sparkle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 50%;
+    animation: sparkleTwinkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkleTwinkle {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+/* School theme animations */
+.school-books {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.book {
+    position: absolute;
+    width: 30px;
+    height: 40px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+    animation: bookStack 6s ease-in-out infinite;
+}
+
+@keyframes bookStack {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+/* Culture theme animations */
+.culture-patterns {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255,255,255,0.05) 0%, transparent 50%);
+    animation: patternPulse 10s ease-in-out infinite;
+}
+
+@keyframes patternPulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.05); }
 }
 .container {
     text-align: center;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.12);
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: min(98vw, 1400px);
+    height: min(98vh, 800px);
+    margin: 0 auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    position: relative;
 }
 h1 {
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    font-size: 2rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Focus states for accessibility */
+button:focus,
+.avatar-btn:focus,
+select:focus,
+input:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .container {
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid white;
+    }
+    
+    button {
+        background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+        border: 2px solid white;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .travel-clouds,
+    .travel-plane,
+    .office-particle,
+    .daily-element,
+    .sparkle,
+    .book {
+        animation: none !important;
+    }
 }
 button {
-    background: linear-gradient(90deg, #ff758c, #ff7eb3);
+    background: linear-gradient(135deg, #ff758c, #ff7eb3);
     border: none;
-    padding: 15px 30px;
-    margin: 10px;
+    padding: 14px 28px;
+    margin: 8px;
     color: white;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 28px;
     cursor: pointer;
-    transition: transform 0.2s, opacity 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(255, 117, 140, 0.3);
+    position: relative;
+    overflow: hidden;
 }
 button:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 6px rgba(255, 117, 140, 0.2);
 }
 button:hover:not(:disabled) {
-    transform: scale(1.05);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(255, 117, 140, 0.4);
+}
+button:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+}
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+button:hover::before {
+    left: 100%;
 }
 #timer {
     font-size: 18px;
@@ -54,13 +307,23 @@ button:hover:not(:disabled) {
 }
 canvas {
     display: block;
-    margin: 20px auto;
-    width: 80vw;
-    height: 80vw;
-    max-width: 400px;
-    max-height: 400px;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    max-height: 55vh;
     background: rgba(255,255,255,0.05);
     border-radius: 50%;
+    margin-top: -5px;
+    box-shadow: 
+        0 0 0 0 rgba(0, 0, 0, 0.4),
+        0 0 0 0 rgba(0, 0, 0, 0.3),
+        0 0 0 0 rgba(0, 0, 0, 0.2),
+        0 0 0 0 rgba(0, 0, 0, 0.1);
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.3)) 
+            drop-shadow(0 0 40px rgba(0, 0, 0, 0.2)) 
+            drop-shadow(0 0 60px rgba(0, 0, 0, 0.1));
 }
 label, select {
     font-size: 16px;
@@ -75,31 +338,413 @@ select {
     border-radius: 10px;
     color: rgb(26, 25, 25);
 }
+
+/* Responsive grids */
+#themeGrid { width: 100%; }
+#suggestionsGrid { width: 100%; }
+
+@media (max-width: 900px) {
+    .container {
+        height: 98vh;
+        padding: 16px;
+        gap: 16px;
+        width: min(98vw, 1000px);
+    }
+    
+    .container > div:last-child {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    #themeGrid { 
+        grid-template-columns: repeat(2, minmax(0, 1fr)); 
+        gap: 8px;
+    }
+    
+    canvas { 
+        max-height: 45vh; 
+        max-width: 350px; 
+        border-radius: 50%;
+    }
+    
+    /* Enhanced mobile button interactions */
+    button {
+        padding: 12px 24px;
+        font-size: 14px;
+        margin: 6px;
+    }
+    
+    
+    .status-indicator {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    /* Reduce animation intensity on mobile */
+    .travel-plane { font-size: 20px; }
+    .daily-element { font-size: 16px; }
+    .book { width: 20px; height: 30px; }
+}
+
+@media (max-width: 520px) {
+    .container {
+        padding: 12px;
+        gap: 12px;
+        width: 98vw;
+        height: 98vh;
+    }
+    
+    .container > div:first-child {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    #themeGrid { grid-template-columns: 1fr; }
+    #suggestionsGrid { grid-template-columns: 1fr !important; }
+    
+    h1 { font-size: 20px; }
+    button { padding: 10px 18px; font-size: 13px; }
+    canvas { max-height: 40vh; max-width: 300px; }
+    
+    /* Further reduce animations on small screens */
+    .office-particle { width: 2px; height: 2px; }
+    .sparkle { width: 4px; height: 4px; }
+}
+
+/* Theme buttons: icon above label */
+.theme-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    line-height: 1.1;
+    padding: 10px 6px;
+    font-size: 13px;
+}
+.theme-btn .icon { font-size: 18px; }
+.theme-btn .label { font-weight: 600; }
+
+/* Loading spinner */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Progress bar */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00ff88, #00d4aa);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+}
+
+/* Status indicators */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Avatar dropdown styling */
+#avatarSelect {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 14px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+#avatarSelect:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+#avatarSelect:focus {
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+#avatarSelect option {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px;
+}
+
+/* Custom scrollbar for left pane */
+#leftPane::-webkit-scrollbar {
+    width: 6px;
+}
+
+#leftPane::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+#leftPane::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+#leftPane::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
 </style>
 </head>
 <body>
+<!-- Dynamic background animations -->
+<div class="background-animation" id="backgroundAnimation"></div>
+
 <div class="container">
     <h1>Safar AI Conversation</h1>
+    
+    <!-- Top Controls Row -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <!-- Level Selection -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="levelSelect" style="margin: 0; font-weight: 600;">English Level:</label>
+            <select id="levelSelect">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate" selected>Intermediate</option>
+                <option value="Advanced">Advanced</option>
+            </select>
+        </div>
+        
+        <!-- Selected Avatar Display -->
+        <div id="selectedAvatar" style="display: flex; align-items: center; gap: 10px; padding: 8px 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+            <div id="avatarDisplay" style="font-size: 24px;">😊</div>
+            <div>
+                <div id="personalityName" style="font-size: 14px; font-weight: 600;">Friendly Mentor</div>
+                <div id="personalityDesc" style="font-size: 11px; opacity: 0.8;">Warm & Encouraging</div>
+            </div>
+        </div>
+        
+        <!-- Control Buttons -->
+        <div id="buttonBar" style="display: flex; gap: 10px;" role="toolbar" aria-label="Conversation controls">
+            <button id="startBtn" aria-label="Start a new conversation" title="Start a new conversation">Start Conversation</button>
+            <button id="endBtn" disabled aria-label="End current conversation" title="End current conversation">End Conversation</button>
+            <button id="historyBtn" style="background: rgba(255,255,255,0.15);" aria-label="View conversation history" title="View conversation history">📚 History</button>
+        </div>
+    </div>
 
-    <!-- Level selection dropdown -->
-    <label for="levelSelect">Choose your English Level:</label>
-    <select id="levelSelect">
-        <option value="Beginner">Beginner</option>
-        <option value="Intermediate" selected>Intermediate</option>
-        <option value="Advanced">Advanced</option>
-    </select>
+    <!-- Main Content Area -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; flex: 1; min-height: 0;">
+        <!-- Left Side - Configuration -->
+        <div style="display: flex; flex-direction: column; gap: 14px; overflow: hidden; padding-right: 8px;">
+            <!-- Avatar Selection -->
+            <div>
+                <div style="font-weight: 600; margin-bottom: 10px;">Choose your AI Tutor</div>
+                <select id="avatarSelect" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); outline: none; background: rgba(255,255,255,0.1); color: white; font-size: 14px; transition: all 0.3s ease; cursor: pointer;" aria-label="Select AI Tutor">
+                    <option value="friendly" data-personality="Friendly Mentor">😊 Friendly Mentor - Warm & Encouraging</option>
+                    <option value="professional" data-personality="Professional Coach">👨‍💼 Professional Coach - Structured & Clear</option>
+                    <option value="casual" data-personality="Casual Friend">😎 Casual Friend - Relaxed & Fun</option>
+                    <option value="academic" data-personality="Academic Expert">🎓 Academic Expert - Detailed & Precise</option>
+                    <option value="energetic" data-personality="Energetic Guide">⚡ Energetic Guide - Dynamic & Motivating</option>
+                    <option value="patient" data-personality="Patient Teacher">🧘 Patient Teacher - Calm & Supportive</option>
+                </select>
+            </div>
 
-    <br><br>
-    <button id="startBtn">Start Conversation</button>
-    <button id="endBtn" disabled>End Conversation</button>
-    <div id="timer">00:00</div>
-    <canvas id="waveformCanvas"></canvas>
+            <!-- Theme Selection -->
+            <div>
+                <div style="font-weight: 600; margin-bottom: 8px;">Conversation Theme</div>
+                <div id="themeGrid" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px;">
+                    <button class="theme-btn" data-theme="Daily Life"><span class="icon">🏠</span><span class="label">Daily Life</span></button>
+                    <button class="theme-btn" data-theme="Travel"><span class="icon">✈</span><span class="label">Travel</span></button>
+                    <button class="theme-btn" data-theme="Work/Business"><span class="icon">💼</span><span class="label">Work</span></button>
+                    <button class="theme-btn" data-theme="Hobbies"><span class="icon">🎨</span><span class="label">Hobbies</span></button>
+                    <button class="theme-btn" data-theme="School/University"><span class="icon">🎓</span><span class="label">School</span></button>
+                    <button class="theme-btn" data-theme="Culture & Society"><span class="icon">🌍</span><span class="label">Culture</span></button>
+                </div>
+            </div>
+
+            <!-- Topic Selection -->
+            <div>
+                <div style="font-weight: 600; margin-bottom: 8px;">Choose a Topic</div>
+                <div id="topicTabs" style="display: flex; gap: 6px; margin-bottom: 8px;">
+                    <button id="tabSuggest" class="tab-btn" style="background: rgba(255,255,255,0.15);">Tutor suggests</button>
+                    <button id="tabCustom" class="tab-btn" style="background: rgba(255,255,255,0.08);">Custom topic</button>
+                </div>
+                <div id="topicSuggestPanel" style="display: block;">
+                    <div id="suggestionsGrid" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;"></div>
+                </div>
+                <div id="topicCustomPanel" style="display: none;">
+                    <input id="customTopicInput" type="text" placeholder="Type your own topic…" 
+                           style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); outline: none; background: rgba(255,255,255,0.1); color: white; font-size: 14px; transition: all 0.3s ease;" 
+                           aria-label="Custom topic input" />
+                    <div id="topicValidation" style="font-size: 12px; color: #ff6b6b; margin-top: 5px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Orb and Status -->
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;">
+            <!-- Status Bar -->
+            <div id="statusBar" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 8px 16px; background: rgba(255, 255, 255, 0.08); border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="status-indicator">
+                        <div id="liveDot" class="status-dot" style="background: #00ff88; box-shadow: 0 0 8px #00ff88;"></div>
+                        <span style="opacity: 0.9; font-weight: 600;">Live</span>
+                    </div>
+                    <div id="youSpeaking" class="status-indicator" style="display: none; background: rgba(0,255,255,0.15); border-color: rgba(0,255,255,0.4);">
+                        <div class="status-dot" style="background: #00ffff;"></div>
+                        <span>You speaking</span>
+                    </div>
+                    <div id="tutorSpeaking" class="status-indicator" style="display: none; background: rgba(255,0,255,0.15); border-color: rgba(255,0,255,0.4);">
+                        <div class="status-dot" style="background: #ff00ff;"></div>
+                        <span>Tutor speaking</span>
+                    </div>
+                </div>
+                <div id="timer" style="font-size: 18px; font-weight: 600; color: #00ff88; text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);">00:00</div>
+            </div>
+            
+            <!-- Orb Canvas -->
+            <canvas id="waveformCanvas"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Conversation History Modal -->
+<div id="historyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(8px); animation: fadeIn 0.3s ease;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 1000px; height: 80%; background: rgba(255,255,255,0.12); border-radius: 24px; padding: 24px; display: flex; flex-direction: column; gap: 20px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+        <!-- Modal Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 15px;">
+            <h2 style="margin: 0; color: white; font-size: 24px;">📚 Conversation History</h2>
+            <button id="closeHistoryBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 18px;">✕</button>
+        </div>
+        
+        <!-- Search and Filter -->
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <input id="historySearch" type="text" placeholder="Search conversations..." style="flex: 1; min-width: 200px; padding: 10px; border-radius: 10px; border: none; outline: none; background: rgba(255,255,255,0.1); color: white; font-size: 14px;">
+            <select id="historyFilter" style="padding: 10px; border-radius: 10px; border: none; outline: none; background: rgba(255,255,255,0.1); color: white;">
+                <option value="all">All Conversations</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+            <button id="exportHistoryBtn" style="background: rgba(0,255,0,0.2); border: none; color: white; padding: 10px 15px; border-radius: 10px; cursor: pointer;">📥 Export</button>
+        </div>
+        
+        <!-- Statistics -->
+        <div id="historyStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px;">
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: #00ff88;">0</div>
+                <div style="font-size: 12px; opacity: 0.8;">Total Conversations</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: #ff6b6b;">0</div>
+                <div style="font-size: 12px; opacity: 0.8;">Total Time</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: #4ecdc4;">0</div>
+                <div style="font-size: 12px; opacity: 0.8;">Words Spoken</div>
+            </div>
+        </div>
+        
+        <!-- Conversation List -->
+        <div id="conversationList" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+            <!-- Conversations will be dynamically added here -->
+        </div>
+    </div>
+</div>
+
+<!-- Conversation Detail Modal -->
+<div id="conversationDetailModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1001; backdrop-filter: blur(5px);">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 1200px; height: 90%; background: rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+        <!-- Detail Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 15px;">
+            <div>
+                <h3 id="conversationTitle" style="margin: 0; color: white; font-size: 20px;">Conversation Details</h3>
+                <div id="conversationMeta" style="font-size: 12px; opacity: 0.8; margin-top: 5px;"></div>
+            </div>
+            <button id="closeDetailBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 18px;">✕</button>
+        </div>
+        
+        <!-- Audio Controls -->
+        <div id="audioControls" style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+            <button id="playPauseBtn" style="background: rgba(0,255,0,0.3); border: none; color: white; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 16px;">▶️ Play</button>
+            <div style="flex: 1; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; position: relative;">
+                <div id="progressBar" style="height: 100%; background: #00ff88; border-radius: 2px; width: 0%; transition: width 0.1s;"></div>
+            </div>
+            <span id="timeDisplay" style="color: white; font-size: 14px; min-width: 80px;">00:00 / 00:00</span>
+            <button id="downloadAudioBtn" style="background: rgba(0,150,255,0.3); border: none; color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer;">📥 Download</button>
+        </div>
+        
+        <!-- Transcript -->
+        <div id="transcriptContainer" style="flex: 1; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 15px;">
+            <div id="transcriptContent" style="color: white; line-height: 1.6; font-size: 14px;">
+                <!-- Transcript will be loaded here -->
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-const BACKEND_URL = "http://127.0.0.1:9000";
+const BACKEND_URL = "http://127.0.0.1:8000";
 let pc, localStream, sessionActive = false;
 let timerInterval, startTime;
+let userSpeakingUntil = 0;
+let tutorSpeakingUntil = 0;
+let idleAnimating = true;
 
 // Timer
 function startTimer() {
@@ -126,6 +771,19 @@ function updateCanvasSize() {
 }
 window.addEventListener('resize', updateCanvasSize);
 updateCanvasSize();
+
+// Align right pane with the level row height
+function alignRightPane(){
+    const leftRow = document.getElementById('levelRowLeft');
+    const rightPane = document.getElementById('rightPane');
+    if (!leftRow || !rightPane) return;
+    const rect = leftRow.getBoundingClientRect();
+    // compute offset relative to container's top padding area
+    const topOffset = rect.height + 6; // small spacing
+    rightPane.style.paddingTop = topOffset + 'px';
+}
+window.addEventListener('load', alignRightPane);
+window.addEventListener('resize', alignRightPane);
 
 function animateCircularWave(userData=[], aiData=[]) {
     ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -178,8 +836,72 @@ function animateCircularWave(userData=[], aiData=[]) {
         ctx.stroke();
     }
 
+    // Speaking indicators (simple energy threshold with hold)
+    const nowTs = Date.now();
+    const avg = arr => (arr && arr.length) ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+    const userAvg = avg(userData);
+    const aiAvg = avg(aiData);
+    const THRESH = 25; // tweak as needed
+    const HOLD_MS = 400; // avoid flicker
+    if (userAvg > THRESH) userSpeakingUntil = nowTs + HOLD_MS;
+    if (aiAvg > THRESH) tutorSpeakingUntil = nowTs + HOLD_MS;
+    const youEl = document.getElementById('youSpeaking');
+    const tutorEl = document.getElementById('tutorSpeaking');
+    if (youEl) youEl.style.display = (nowTs < userSpeakingUntil) ? 'inline-block' : 'none';
+    if (tutorEl) tutorEl.style.display = (nowTs < tutorSpeakingUntil) ? 'inline-block' : 'none';
+
+    // Jarvis-like central orb and pulsing rings
+    const userActiveFactor = Math.max(0, Math.min(1, (userSpeakingUntil - nowTs) / HOLD_MS));
+    const tutorActiveFactor = Math.max(0, Math.min(1, (tutorSpeakingUntil - nowTs) / HOLD_MS));
+    const coreRadius = innerRadius * 0.55;
+
+    // Core glow
+    const coreGradient = ctx.createRadialGradient(centerX, centerY, coreRadius*0.2, centerX, centerY, coreRadius);
+    const mixCyan = `rgba(0,255,255,${0.25 + 0.45*userActiveFactor})`;
+    const mixMagenta = `rgba(255,0,255,${0.25 + 0.45*tutorActiveFactor})`;
+    coreGradient.addColorStop(0, 'rgba(255,255,255,0.9)');
+    coreGradient.addColorStop(0.6, mixCyan);
+    coreGradient.addColorStop(1, mixMagenta);
+    ctx.fillStyle = coreGradient;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, coreRadius, 0, Math.PI*2);
+    ctx.fill();
+
+    // Pulsing rings
+    const t = performance.now() / 1000;
+    const drawRing = (baseRadius, color, speed, width, alpha) => {
+        const phase = (t * speed) % 1;
+        const r = baseRadius + phase * 24;
+        ctx.strokeStyle = `rgba(${color},${alpha*(1-phase)})`;
+        ctx.lineWidth = width;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, r, 0, Math.PI*2);
+        ctx.stroke();
+    };
+    for (let i=0;i<3;i++) {
+        drawRing(coreRadius + i*10, '0,255,255', 0.8 + i*0.2, 1.5, 0.6*userActiveFactor);
+        drawRing(coreRadius + i*10, '255,0,255', 1.1 + i*0.25, 1.5, 0.6*tutorActiveFactor);
+    }
+
+    // Rotating arc sweep for activity
+    const sweepSpan = Math.PI/3;
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = `rgba(255,255,255,${0.2 + 0.5*(userActiveFactor+tutorActiveFactor)/2})`;
+    const angle = t * 1.2;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, coreRadius + 14, angle, angle + sweepSpan);
+    ctx.stroke();
+
     if(sessionActive) requestAnimationFrame(()=>animateCircularWave(userData, aiData));
 }
+
+// Idle animation so the orb is visible before call starts
+function idleLoop(){
+    if(!idleAnimating) return;
+    animateCircularWave([], []);
+    requestAnimationFrame(idleLoop);
+}
+idleLoop();
 
 // Audio analyser
 function createAnalyser(stream) {
@@ -198,19 +920,655 @@ function getFrequencyData(analyser) {
 }
 
 // Start conversation
+let selectedTheme = "Daily Life";
+let selectedTopic = "";
+let selectedAvatar = "friendly";
+let selectedPersonality = "Friendly Mentor";
+
+// Conversation History Management
+let conversationHistory = JSON.parse(localStorage.getItem('conversationHistory') || '[]');
+let currentConversation = null;
+let currentAudio = null;
+let isPlaying = false;
+
+// Background theme management
+function updateBackgroundTheme(theme) {
+    const body = document.body;
+    const backgroundAnimation = document.getElementById('backgroundAnimation');
+    
+    // Add transition class for smooth changes
+    body.classList.add('theme-transition');
+    
+    // Fade out current animations
+    backgroundAnimation.style.opacity = '0';
+    
+    setTimeout(() => {
+        // Remove all theme classes
+        body.className = body.className.replace(/theme-\w+/g, '');
+        
+        // Add new theme class
+        const themeClass = theme.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        body.classList.add(`theme-${themeClass}`);
+        
+        // Clear existing animations
+        backgroundAnimation.innerHTML = '';
+        
+        // Create theme-specific animations
+        createThemeAnimations(theme, backgroundAnimation);
+        
+        // Fade in new animations
+        backgroundAnimation.style.opacity = '1';
+        
+        // Remove transition class after animation completes
+        setTimeout(() => {
+            body.classList.remove('theme-transition');
+        }, 800);
+    }, 250);
+}
+
+function createThemeAnimations(theme, container) {
+    switch(theme) {
+        case 'Travel':
+            createTravelAnimations(container);
+            break;
+        case 'Work/Business':
+            createOfficeAnimations(container);
+            break;
+        case 'Daily Life':
+            createDailyLifeAnimations(container);
+            break;
+        case 'Hobbies':
+            createHobbiesAnimations(container);
+            break;
+        case 'School/University':
+            createSchoolAnimations(container);
+            break;
+        case 'Culture & Society':
+            createCultureAnimations(container);
+            break;
+    }
+}
+
+function createTravelAnimations(container) {
+    // Moving clouds
+    const clouds = document.createElement('div');
+    clouds.className = 'travel-clouds';
+    container.appendChild(clouds);
+    
+    // Flying plane
+    const plane = document.createElement('div');
+    plane.className = 'travel-plane';
+    plane.innerHTML = '✈️';
+    container.appendChild(plane);
+}
+
+function createOfficeAnimations(container) {
+    const particles = document.createElement('div');
+    particles.className = 'office-particles';
+    container.appendChild(particles);
+    
+    // Create floating particles
+    for (let i = 0; i < 15; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'office-particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 8 + 's';
+        particle.style.animationDuration = (8 + Math.random() * 4) + 's';
+        particles.appendChild(particle);
+    }
+}
+
+function createDailyLifeAnimations(container) {
+    const elements = document.createElement('div');
+    elements.className = 'daily-life-elements';
+    container.appendChild(elements);
+    
+    const dailyIcons = ['🏠', '☕', '🍞', '🚗', '📱', '💼', '🛒', '🍽️'];
+    dailyIcons.forEach((icon, index) => {
+        const element = document.createElement('div');
+        element.className = 'daily-element';
+        element.innerHTML = icon;
+        element.style.left = (10 + index * 12) + '%';
+        element.style.top = (20 + (index % 3) * 25) + '%';
+        element.style.animationDelay = index * 0.5 + 's';
+        elements.appendChild(element);
+    });
+}
+
+function createHobbiesAnimations(container) {
+    const sparkles = document.createElement('div');
+    sparkles.className = 'hobbies-sparkles';
+    container.appendChild(sparkles);
+    
+    // Create twinkling sparkles
+    for (let i = 0; i < 20; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle';
+        sparkle.style.left = Math.random() * 100 + '%';
+        sparkle.style.top = Math.random() * 100 + '%';
+        sparkle.style.animationDelay = Math.random() * 2 + 's';
+        sparkles.appendChild(sparkle);
+    }
+}
+
+function createSchoolAnimations(container) {
+    const books = document.createElement('div');
+    books.className = 'school-books';
+    container.appendChild(books);
+    
+    // Create floating books
+    for (let i = 0; i < 8; i++) {
+        const book = document.createElement('div');
+        book.className = 'book';
+        book.style.left = (15 + i * 10) + '%';
+        book.style.top = (30 + (i % 2) * 20) + '%';
+        book.style.animationDelay = i * 0.3 + 's';
+        books.appendChild(book);
+    }
+}
+
+function createCultureAnimations(container) {
+    const patterns = document.createElement('div');
+    patterns.className = 'culture-patterns';
+    container.appendChild(patterns);
+}
+
+// Conversation History Functions
+function saveConversation(conversationData) {
+    const conversation = {
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+        duration: conversationData.duration || 0,
+        level: conversationData.level,
+        theme: conversationData.theme,
+        topic: conversationData.topic,
+        personality: conversationData.personality,
+        avatar: conversationData.avatar,
+        transcript: conversationData.transcript || [],
+        audioBlob: conversationData.audioBlob,
+        wordCount: conversationData.wordCount || 0,
+        corrections: conversationData.corrections || []
+    };
+    
+    conversationHistory.unshift(conversation);
+    conversationHistory = conversationHistory.slice(0, 100); // Keep only last 100 conversations
+    localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+}
+
+function openHistoryModal() {
+    document.getElementById('historyModal').style.display = 'block';
+    loadConversationHistory();
+    updateHistoryStats();
+}
+
+function closeHistoryModal() {
+    document.getElementById('historyModal').style.display = 'none';
+}
+
+function closeDetailModal() {
+    document.getElementById('conversationDetailModal').style.display = 'none';
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+        isPlaying = false;
+    }
+}
+
+function loadConversationHistory() {
+    const list = document.getElementById('conversationList');
+    list.innerHTML = '';
+    
+    if (conversationHistory.length === 0) {
+        list.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px;">No conversations yet. Start your first conversation!</div>';
+        return;
+    }
+    
+    conversationHistory.forEach(conv => {
+        const convElement = document.createElement('div');
+        convElement.style.cssText = 'background: rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; cursor: pointer; transition: all 0.3s ease;';
+        convElement.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                <div>
+                    <div style="font-weight: 600; font-size: 16px; margin-bottom: 5px;">${conv.theme} - ${conv.personality}</div>
+                    <div style="font-size: 12px; opacity: 0.8;">${new Date(conv.timestamp).toLocaleString()}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 14px; font-weight: 600; color: #00ff88;">${formatDuration(conv.duration)}</div>
+                    <div style="font-size: 11px; opacity: 0.8;">${conv.wordCount} words</div>
+                </div>
+            </div>
+            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 10px;">Level: ${conv.level} | Topic: ${conv.topic || 'General'}</div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="viewConversation('${conv.id}')" style="background: rgba(0,150,255,0.3); border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">📖 View</button>
+                <button onclick="deleteConversation('${conv.id}')" style="background: rgba(255,0,0,0.3); border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">🗑️ Delete</button>
+            </div>
+        `;
+        
+        convElement.addEventListener('mouseenter', () => {
+            convElement.style.background = 'rgba(255,255,255,0.2)';
+            convElement.style.transform = 'translateY(-2px)';
+        });
+        
+        convElement.addEventListener('mouseleave', () => {
+            convElement.style.background = 'rgba(255,255,255,0.1)';
+            convElement.style.transform = 'translateY(0)';
+        });
+        
+        list.appendChild(convElement);
+    });
+}
+
+function viewConversation(conversationId) {
+    const conversation = conversationHistory.find(c => c.id === conversationId);
+    if (!conversation) return;
+    
+    currentConversation = conversation;
+    document.getElementById('conversationTitle').textContent = `${conversation.theme} - ${conversation.personality}`;
+    document.getElementById('conversationMeta').textContent = 
+        `${new Date(conversation.timestamp).toLocaleString()} | Level: ${conversation.level} | Duration: ${formatDuration(conversation.duration)} | ${conversation.wordCount} words`;
+    
+    // Load transcript
+    const transcriptContent = document.getElementById('transcriptContent');
+    if (conversation.transcript && conversation.transcript.length > 0) {
+        transcriptContent.innerHTML = conversation.transcript.map(entry => 
+            `<div style="margin-bottom: 15px; padding: 10px; border-radius: 8px; background: ${entry.speaker === 'user' ? 'rgba(0,255,255,0.1)' : 'rgba(255,0,255,0.1)'};">
+                <div style="font-weight: 600; margin-bottom: 5px; color: ${entry.speaker === 'user' ? '#00ffff' : '#ff00ff'};">
+                    ${entry.speaker === 'user' ? 'You' : 'Tutor'}
+                </div>
+                <div>${entry.text}</div>
+                ${entry.timestamp ? `<div style="font-size: 11px; opacity: 0.6; margin-top: 5px;">${formatTime(entry.timestamp)}</div>` : ''}
+            </div>`
+        ).join('');
+    } else {
+        transcriptContent.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px;">No transcript available for this conversation.</div>';
+    }
+    
+    // Setup audio if available
+    if (conversation.audioBlob) {
+        const audioUrl = URL.createObjectURL(conversation.audioBlob);
+        currentAudio = new Audio(audioUrl);
+        setupAudioControls();
+    } else {
+        document.getElementById('audioControls').style.display = 'none';
+    }
+    
+    document.getElementById('conversationDetailModal').style.display = 'block';
+}
+
+function deleteConversation(conversationId) {
+    if (confirm('Are you sure you want to delete this conversation?')) {
+        conversationHistory = conversationHistory.filter(c => c.id !== conversationId);
+        localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+        loadConversationHistory();
+        updateHistoryStats();
+    }
+}
+
+function setupAudioControls() {
+    if (!currentAudio) return;
+    
+    currentAudio.addEventListener('timeupdate', () => {
+        const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+        document.getElementById('progressBar').style.width = progress + '%';
+        document.getElementById('timeDisplay').textContent = 
+            `${formatTime(currentAudio.currentTime)} / ${formatTime(currentAudio.duration)}`;
+    });
+    
+    currentAudio.addEventListener('ended', () => {
+        isPlaying = false;
+        document.getElementById('playPauseBtn').textContent = '▶️ Play';
+    });
+}
+
+function togglePlayback() {
+    if (!currentAudio) return;
+    
+    if (isPlaying) {
+        currentAudio.pause();
+        document.getElementById('playPauseBtn').textContent = '▶️ Play';
+        isPlaying = false;
+    } else {
+        currentAudio.play();
+        document.getElementById('playPauseBtn').textContent = '⏸️ Pause';
+        isPlaying = true;
+    }
+}
+
+function exportHistory() {
+    const dataStr = JSON.stringify(conversationHistory, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `conversation-history-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+function filterConversations() {
+    const searchTerm = document.getElementById('historySearch').value.toLowerCase();
+    const filterValue = document.getElementById('historyFilter').value;
+    
+    const filtered = conversationHistory.filter(conv => {
+        const matchesSearch = conv.theme.toLowerCase().includes(searchTerm) || 
+                            conv.personality.toLowerCase().includes(searchTerm) ||
+                            conv.topic.toLowerCase().includes(searchTerm);
+        
+        const matchesFilter = filterValue === 'all' || 
+                            (filterValue === 'today' && isToday(conv.timestamp)) ||
+                            (filterValue === 'week' && isThisWeek(conv.timestamp)) ||
+                            (filterValue === 'month' && isThisMonth(conv.timestamp));
+        
+        return matchesSearch && matchesFilter;
+    });
+    
+    // Re-render with filtered results
+    const list = document.getElementById('conversationList');
+    list.innerHTML = '';
+    
+    filtered.forEach(conv => {
+        // Same rendering logic as loadConversationHistory but with filtered data
+        const convElement = document.createElement('div');
+        convElement.style.cssText = 'background: rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; cursor: pointer; transition: all 0.3s ease;';
+        convElement.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                <div>
+                    <div style="font-weight: 600; font-size: 16px; margin-bottom: 5px;">${conv.theme} - ${conv.personality}</div>
+                    <div style="font-size: 12px; opacity: 0.8;">${new Date(conv.timestamp).toLocaleString()}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 14px; font-weight: 600; color: #00ff88;">${formatDuration(conv.duration)}</div>
+                    <div style="font-size: 11px; opacity: 0.8;">${conv.wordCount} words</div>
+                </div>
+            </div>
+            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 10px;">Level: ${conv.level} | Topic: ${conv.topic || 'General'}</div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="viewConversation('${conv.id}')" style="background: rgba(0,150,255,0.3); border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">📖 View</button>
+                <button onclick="deleteConversation('${conv.id}')" style="background: rgba(255,0,0,0.3); border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">🗑️ Delete</button>
+            </div>
+        `;
+        list.appendChild(convElement);
+    });
+}
+
+function updateHistoryStats() {
+    const totalConversations = conversationHistory.length;
+    const totalTime = conversationHistory.reduce((sum, conv) => sum + conv.duration, 0);
+    const totalWords = conversationHistory.reduce((sum, conv) => sum + conv.wordCount, 0);
+    
+    document.querySelector('#historyStats div:nth-child(1) div:first-child').textContent = totalConversations;
+    document.querySelector('#historyStats div:nth-child(2) div:first-child').textContent = formatDuration(totalTime);
+    document.querySelector('#historyStats div:nth-child(3) div:first-child').textContent = totalWords;
+}
+
+// Utility functions
+function formatDuration(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function isToday(timestamp) {
+    const today = new Date();
+    const convDate = new Date(timestamp);
+    return today.toDateString() === convDate.toDateString();
+}
+
+function isThisWeek(timestamp) {
+    const now = new Date();
+    const convDate = new Date(timestamp);
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    return convDate >= weekAgo;
+}
+
+function isThisMonth(timestamp) {
+    const now = new Date();
+    const convDate = new Date(timestamp);
+    return now.getMonth() === convDate.getMonth() && now.getFullYear() === convDate.getFullYear();
+}
+
+// Theme selection handling
+document.addEventListener('DOMContentLoaded', () => {
+    const buttons = Array.from(document.querySelectorAll('.theme-btn'));
+    const selectButton = (btn) => {
+        buttons.forEach(b => b.style.outline = 'none');
+        buttons.forEach(b => b.style.opacity = '0.8');
+        btn.style.opacity = '1';
+        btn.style.outline = '2px solid rgba(255,255,255,0.7)';
+    };
+    // default
+    if (buttons.length) selectButton(buttons[0]);
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            selectedTheme = btn.getAttribute('data-theme');
+            selectButton(btn);
+            renderSuggestions();
+            updateBackgroundTheme(selectedTheme);
+        });
+    });
+    
+    // Initialize with default theme
+    updateBackgroundTheme(selectedTheme);
+
+    // Avatar selection handling
+    const avatarSelect = document.getElementById('avatarSelect');
+    const selectAvatar = (value) => {
+        selectedAvatar = value;
+        const selectedOption = avatarSelect.querySelector(`option[value="${value}"]`);
+        selectedPersonality = selectedOption.getAttribute('data-personality');
+        updateAvatarDisplay();
+    };
+    
+    // Set default avatar
+    selectAvatar('friendly');
+    
+    avatarSelect.addEventListener('change', (e) => {
+        selectAvatar(e.target.value);
+    });
+    
+    // Update avatar display function
+    function updateAvatarDisplay() {
+        const avatarDisplay = document.getElementById('avatarDisplay');
+        const personalityName = document.getElementById('personalityName');
+        const personalityDesc = document.getElementById('personalityDesc');
+        
+        if (avatarDisplay && personalityName && personalityDesc) {
+            const avatarData = {
+                'friendly': { icon: '😊', name: 'Friendly Mentor', desc: 'Warm & Encouraging' },
+                'professional': { icon: '👨‍💼', name: 'Professional Coach', desc: 'Structured & Clear' },
+                'casual': { icon: '😎', name: 'Casual Friend', desc: 'Relaxed & Fun' },
+                'academic': { icon: '🎓', name: 'Academic Expert', desc: 'Detailed & Precise' },
+                'energetic': { icon: '⚡', name: 'Energetic Guide', desc: 'Dynamic & Motivating' },
+                'patient': { icon: '🧘', name: 'Patient Teacher', desc: 'Calm & Supportive' }
+            };
+            
+            const current = avatarData[selectedAvatar] || avatarData['friendly'];
+            avatarDisplay.textContent = current.icon;
+            personalityName.textContent = current.name;
+            personalityDesc.textContent = current.desc;
+        }
+    }
+    
+    // Initialize avatar display
+    updateAvatarDisplay();
+    
+    // Keyboard navigation support
+    document.addEventListener('keydown', (e) => {
+        // ESC key to close modals
+        if (e.key === 'Escape') {
+            if (document.getElementById('historyModal').style.display === 'block') {
+                closeHistoryModal();
+            } else if (document.getElementById('conversationDetailModal').style.display === 'block') {
+                closeDetailModal();
+            }
+        }
+        
+        // Enter key to start conversation when start button is focused
+        if (e.key === 'Enter' && document.activeElement === document.getElementById('startBtn') && !document.getElementById('startBtn').disabled) {
+            startConversation();
+        }
+        
+        // Space key to toggle play/pause in detail modal
+        if (e.key === ' ' && document.activeElement === document.getElementById('playPauseBtn')) {
+            e.preventDefault();
+            togglePlayback();
+        }
+    });
+    
+    // History modal event listeners
+    document.getElementById('historyBtn').addEventListener('click', openHistoryModal);
+    document.getElementById('closeHistoryBtn').addEventListener('click', closeHistoryModal);
+    document.getElementById('closeDetailBtn').addEventListener('click', closeDetailModal);
+    document.getElementById('playPauseBtn').addEventListener('click', togglePlayback);
+    document.getElementById('exportHistoryBtn').addEventListener('click', exportHistory);
+    document.getElementById('historySearch').addEventListener('input', filterConversations);
+    document.getElementById('historyFilter').addEventListener('change', filterConversations);
+
+    // Tabs behavior
+    const tabSuggest = document.getElementById('tabSuggest');
+    const tabCustom = document.getElementById('tabCustom');
+    const panelSuggest = document.getElementById('topicSuggestPanel');
+    const panelCustom = document.getElementById('topicCustomPanel');
+    const activateTab = (which) => {
+        if (which === 'suggest') {
+            tabSuggest.style.background = 'rgba(255,255,255,0.15)';
+            tabCustom.style.background = 'rgba(255,255,255,0.08)';
+            panelSuggest.style.display = 'block';
+            panelCustom.style.display = 'none';
+        } else {
+            tabSuggest.style.background = 'rgba(255,255,255,0.08)';
+            tabCustom.style.background = 'rgba(255,255,255,0.15)';
+            panelSuggest.style.display = 'none';
+            panelCustom.style.display = 'block';
+        }
+    };
+    tabSuggest.addEventListener('click', () => activateTab('suggest'));
+    tabCustom.addEventListener('click', () => activateTab('custom'));
+
+    // Input validation for custom topic
+    const customTopicInput = document.getElementById('customTopicInput');
+    const topicValidation = document.getElementById('topicValidation');
+    
+    customTopicInput.addEventListener('input', () => {
+        const value = customTopicInput.value.trim();
+        if (value.length > 0 && value.length < 3) {
+            topicValidation.textContent = 'Topic must be at least 3 characters long';
+            topicValidation.style.display = 'block';
+            customTopicInput.style.borderColor = '#ff6b6b';
+        } else if (value.length > 100) {
+            topicValidation.textContent = 'Topic must be less than 100 characters';
+            topicValidation.style.display = 'block';
+            customTopicInput.style.borderColor = '#ff6b6b';
+        } else {
+            topicValidation.style.display = 'none';
+            customTopicInput.style.borderColor = 'rgba(255,255,255,0.2)';
+        }
+    });
+
+    renderSuggestions();
+});
+
+// Suggestions per theme
+const THEME_SUGGESTIONS = {
+    "Daily Life": [
+        "Morning routines",
+        "Grocery shopping",
+        "Talking about family",
+        "At the bank"
+    ],
+    "Travel": [
+        "Ordering food in a restaurant",
+        "Airport check-in",
+        "Asking for directions",
+        "Hotel check-in"
+    ],
+    "Work/Business": [
+        "Scheduling a meeting",
+        "Giving a presentation",
+        "Job interview practice",
+        "Negotiating a deal"
+    ],
+    "Hobbies": [
+        "Talking about sports",
+        "Discussing art and painting",
+        "Music you like",
+        "Photography basics"
+    ],
+    "School/University": [
+        "Preparing for exams",
+        "Discussing assignments",
+        "Choosing a major",
+        "Campus life"
+    ],
+    "Culture & Society": [
+        "Local festivals",
+        "Traditions and customs",
+        "News discussion",
+        "Community events"
+    ]
+};
+
+function renderSuggestions(){
+    const grid = document.getElementById('suggestionsGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const items = THEME_SUGGESTIONS[selectedTheme] || [];
+    items.forEach(text => {
+        const b = document.createElement('button');
+        b.textContent = text;
+        b.className = 'topic-suggestion';
+        b.style.background = 'rgba(255,255,255,0.12)';
+        b.style.border = 'none';
+        b.style.padding = '10px';
+        b.style.borderRadius = '10px';
+        b.style.color = 'white';
+        b.style.cursor = 'pointer';
+        b.addEventListener('click', () => {
+            selectedTopic = text;
+            // visual cue
+            Array.from(grid.children).forEach(child => child.style.outline = 'none');
+            b.style.outline = '2px solid rgba(255,255,255,0.7)';
+        });
+        grid.appendChild(b);
+    });
+}
+
 async function startConversation() {
-    document.getElementById("startBtn").disabled = true;
-    document.getElementById("endBtn").disabled = false;
+    const startBtn = document.getElementById("startBtn");
+    const endBtn = document.getElementById("endBtn");
+    
+    // Show loading state
+    startBtn.disabled = true;
+    startBtn.innerHTML = '<span class="loading-spinner"></span> Connecting...';
+    endBtn.disabled = false;
 
     try {
+        // stop idle animation when starting live session
+        idleAnimating = false;
         // Get selected level
         const selectedLevel = document.getElementById("levelSelect").value;
 
-        // Ask backend for session, include level
+        // Determine topic to send
+        const custom = (document.getElementById('customTopicInput')||{}).value || '';
+        const topicToSend = (custom && custom.trim().length>0) ? custom.trim() : selectedTopic;
+
+        // Ask backend for session, include level, theme, topic, and personality
         const tokenRes = await fetch(`${BACKEND_URL}/session`, { 
             method:"POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ level: selectedLevel })
+            body: JSON.stringify({ 
+                level: selectedLevel, 
+                theme: selectedTheme, 
+                topic: topicToSend,
+                personality: selectedPersonality,
+                avatar: selectedAvatar
+            })
         });
         if(!tokenRes.ok) throw new Error(await tokenRes.text());
         const { client_secret } = await tokenRes.json();
@@ -246,6 +1604,10 @@ async function startConversation() {
 
         sessionActive = true;
         startTimer();
+        
+        // Reset button to normal state
+        startBtn.innerHTML = 'Start Conversation';
+        startBtn.disabled = true;
 
         function drawLoop(){
             if(!sessionActive) return;
@@ -258,7 +1620,11 @@ async function startConversation() {
 
     } catch(err){
         console.error(err);
+        // Reset button on error
+        startBtn.innerHTML = 'Start Conversation';
         resetButtons();
+        // restore idle animation on failure
+        if(!sessionActive){ idleAnimating = true; idleLoop(); }
     }
 }
 
@@ -267,9 +1633,29 @@ function endConversation(){
     if(pc) pc.close();
     if(localStream) localStream.getTracks().forEach(t=>t.stop());
     sessionActive = false;
+    
+    // Save conversation data
+    const duration = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+    const conversationData = {
+        duration: duration,
+        level: document.getElementById("levelSelect").value,
+        theme: selectedTheme,
+        topic: selectedTopic,
+        personality: selectedPersonality,
+        avatar: selectedAvatar,
+        transcript: [], // This would be populated with actual transcript data
+        wordCount: 0, // This would be calculated from transcript
+        corrections: [] // This would track grammar corrections
+    };
+    
+    saveConversation(conversationData);
+    
     resetButtons();
     stopTimer();
     ctx.clearRect(0,0,canvas.width,canvas.height);
+    // restart idle animation
+    idleAnimating = true;
+    idleLoop();
 }
 
 function resetButtons(){
