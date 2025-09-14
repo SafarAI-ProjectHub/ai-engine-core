@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from pathlib import Path
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, audio
 import dotenv 
 import os 
 from pydantic import BaseModel
@@ -26,6 +26,8 @@ def read_root():
 class AduioBookRequest(BaseModel):
     text: str
     id: int
+
+
 class AduioBookResponse(BaseModel):
     message: str
     text: str
@@ -34,25 +36,29 @@ class AduioBookResponse(BaseModel):
 @app.post("/audio-book", response_model=AduioBookResponse)
 async def audio_book(request: AduioBookRequest):
     try:
+        audio_book_path = Path(__file__).parent.parent/ "config" / "audiobookprompts.txt"
+        with open(audio_book_path, "r", encoding="utf-8") as file:
+            audio_book_prompt = file.read()
+
+        audio_book_tts_path = Path(__file__).parent.parent/ "config" / "audiobookttsprompts.txt"
+        with open(audio_book_tts_path, "r", encoding="utf-8") as file:
+            audio_book_tts_prompt = file.read()
+
         text_response = await client.responses.create(
             model="gpt-5",
-            instructions="""you are a storyteller, you will tell the story of the text in a clear and engaging manner. Use a friendly tone and emphasize key points.
-            your story must be in the same language as the text.
-            you are dealing with a children, so you must use simple words and easy to understand.
-            you must not use any special characters or symbols.
-            you must not use any emojis.
-            you must not use any punctuation.
-            """,
+            instructions = audio_book_prompt,
             input=request.text,
         )
+
         speech_file_path = Path(__file__).parent.parent/ "speechfiles" / f"audio-book{request.id}.mp3"
         async with client.audio.speech.with_streaming_response.create(
             model="gpt-4o-mini-tts",
             voice="nova",
-            instructions="""you are a storyteller, you will tell the story of the text in a clear and engaging manner. Use a friendly tone and emphasize key points.""",
+            instructions = audio_book_tts_prompt,
             input=text_response.output_text,
         ) as audio_response:
             await audio_response.stream_to_file(speech_file_path)
+            
         return AduioBookResponse(
             message="Audio book created successfully",
             text=text_response.output_text,
