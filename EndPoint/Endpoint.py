@@ -7,9 +7,10 @@ import dotenv
 import os 
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from util import parsingoutput as prs
-
+from safarai_realtime.backend import realtime
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -18,6 +19,18 @@ client = AsyncOpenAI(api_key=key)
 
 # Define a simple FastAPI app
 app = FastAPI(root_path="/ai")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(realtime)
+
 
 @app.get("/")
 def read_root():
