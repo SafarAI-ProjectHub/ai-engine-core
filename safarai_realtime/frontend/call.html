@@ -739,7 +739,7 @@ select {
 </div>
 
 <script>
-const BACKEND_URL = "http://127.0.0.1:8000";
+const BACKEND_URL = "http://127.0.0.1:9999/realtime";
 let pc, localStream, sessionActive = false;
 let timerInterval, startTime;
 let userSpeakingUntil = 0;
@@ -1571,7 +1571,10 @@ async function startConversation() {
             })
         });
         if(!tokenRes.ok) throw new Error(await tokenRes.text());
-        const { client_secret } = await tokenRes.json();
+        const { client_secret, id: sessionId } = await tokenRes.json();
+        
+        // Store session ID for keep-alive
+        window.currentSessionId = sessionId;
 
         // Setup mic stream
         localStream = await navigator.mediaDevices.getUserMedia({audio:true});
@@ -1579,6 +1582,48 @@ async function startConversation() {
 
         pc = new RTCPeerConnection();
         localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+        
+        // Create a data channel for keep-alive
+        const dataChannel = pc.createDataChannel("keepalive", { ordered: true });
+        dataChannel.onopen = () => console.log("Keep-alive data channel opened");
+        dataChannel.onclose = () => console.log("Keep-alive data channel closed");
+        dataChannel.onerror = (error) => console.error("Keep-alive data channel error:", error);
+        
+        // Store data channel globally for keep-alive
+        window.dataChannel = dataChannel;
+        
+        // Start keep-alive interval (every 30 seconds)
+        window.keepAliveInterval = setInterval(async () => {
+            if (window.currentSessionId && sessionActive) {
+                try {
+                    await fetch(`${BACKEND_URL}/keep-alive`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ session_id: window.currentSessionId })
+                    });
+                    console.log("Keep-alive sent for session:", window.currentSessionId);
+                } catch (error) {
+                    console.error("Keep-alive failed:", error);
+                }
+            }
+        }, 30000); // 30 seconds
+        
+        // Start WebRTC keep-alive (every 15 seconds) - send data through data channel
+        window.webrtcKeepAliveInterval = setInterval(() => {
+            if (pc && pc.connectionState === 'connected' && sessionActive) {
+                try {
+                    // Send a keep-alive message through the data channel
+                    if (window.dataChannel && window.dataChannel.readyState === 'open') {
+                        window.dataChannel.send(JSON.stringify({ type: 'keepalive', timestamp: Date.now() }));
+                        console.log("Sent WebRTC keep-alive via data channel");
+                    } else {
+                        console.log("Data channel not ready for keep-alive");
+                    }
+                } catch (error) {
+                    console.error("WebRTC keep-alive failed:", error);
+                }
+            }
+        }, 15000); // 15 seconds
 
         let aiAnalyser;
         pc.ontrack = event => {
@@ -1633,6 +1678,32 @@ function endConversation(){
     if(pc) pc.close();
     if(localStream) localStream.getTracks().forEach(t=>t.stop());
     sessionActive = false;
+    
+    // Clear keep-alive intervals
+    if (window.keepAliveInterval) {
+        clearInterval(window.keepAliveInterval);
+        window.keepAliveInterval = null;
+    }
+    if (window.webrtcKeepAliveInterval) {
+        clearInterval(window.webrtcKeepAliveInterval);
+        window.webrtcKeepAliveInterval = null;
+    }
+    
+    // Close data channel
+    if (window.dataChannel) {
+        window.dataChannel.close();
+        window.dataChannel = null;
+    }
+    
+    // Close session on backend
+    if (window.currentSessionId) {
+        fetch(`${BACKEND_URL}/close`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ session_id: window.currentSessionId })
+        }).catch(error => console.error("Failed to close session:", error));
+        window.currentSessionId = null;
+    }
     
     // Save conversation data
     const duration = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;

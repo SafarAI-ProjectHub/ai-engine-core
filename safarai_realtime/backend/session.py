@@ -1,9 +1,8 @@
 # backend.py
 import os
-import json
+import time
 import aiohttp
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, FileResponse
 from dotenv import load_dotenv
 import uvicorn
@@ -13,28 +12,21 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPEN_AI_KEY")
 OPENAI_REALTIME_URL = "https://api.openai.com/v1/realtime/sessions"
 
-app = FastAPI()
 
-# Allow frontend access
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+realtime = APIRouter(tags=["realtime"], prefix="/realtime")
+
 
 active_sessions = {}  # Store session IDs temporarily
 
 
-@app.get("/new")
+@realtime.get("/new")
 async def serve_newcall():
     """Serve the enhanced frontend with the talking orb."""
     here = os.path.dirname(os.path.abspath(__file__))
     filepath = os.path.join(here, "newcall.html")
     return FileResponse(filepath)
 
-@app.post("/session")
+@realtime.post("/session")
 async def create_session(request: Request):
     """Create a new real-time WebRTC session with OpenAI"""
 
@@ -86,12 +78,20 @@ async def create_session(request: Request):
 - Encourage students to express themselves and ask follow-up questions to keep the conversation flowing.
 - Always provide constructive feedback and motivate students to keep practicing.
 
+**Correction Guidelines - IMPORTANT:**
+- **Limit corrections per word**: If a student struggles with a word, correct it maximum 2-3 times, then move on.
+- **Focus on communication**: Prioritize understanding and communication over perfect pronunciation.
+- **Don't obsess over perfection**: If the student's pronunciation is understandable, don't keep correcting the same word.
+- **Mix corrections with encouragement**: After 2-3 attempts, praise their effort and continue the conversation.
+- **Choose your battles**: Only correct the most important mistakes, not every small error.
+
 **Important Guidelines:**
 - Always follow the user's selected English level when providing feedback and corrections.
 - Use the appropriate level instructions to guide the conversation and support the user's learning.
 - Be patient and encouraging, especially with beginners who may need more support.
 - Adapt your language and explanations based on the user's proficiency and comfort level.
 - Keep the conversation engaging and fun to motivate the user to practice more.
+- **Remember**: The goal is fluent communication, not perfect pronunciation. Don't let corrections interrupt the flow of conversation.
 
 **Session Details:**
 - Student's level: {level}
@@ -105,7 +105,13 @@ async def create_session(request: Request):
 Remember to embody your {personality} personality throughout the entire conversation while maintaining effective English teaching practices.
 """
 
-    async with aiohttp.ClientSession() as session:
+    import ssl
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    
+    connector = aiohttp.TCPConnector(ssl=ssl_context)
+    async with aiohttp.ClientSession(connector=connector) as session:
         async with session.post(
             OPENAI_REALTIME_URL,
             headers={
@@ -127,20 +133,69 @@ Remember to embody your {personality} personality throughout the entire conversa
             session_id = data.get("id")
             print(f"Created session with ID: {session_id}")
             if session_id:
+                data["last_activity"] = time.time()
                 active_sessions[session_id] = data
+                print(f"Stored session in active_sessions. Total sessions: {len(active_sessions)}")
+                print(f"Active session IDs: {list(active_sessions.keys())}")
             return data
 
 
-@app.post("/close")
-async def close_session(session_id: str):
-    """Close an active WebRTC session (for cleanup)"""
-    if session_id in active_sessions:
-        del active_sessions[session_id]
-        print(f"Closed session with ID: {session_id}")
-        return {"status": "Session closed"}
-    else:
-        print(f"Attempted to close non-existent session with ID: {session_id}")
-        return {"error": "Session not found"}
+@realtime.post("/keep-alive")
+async def keep_alive(request: Request):
+    """Keep the session alive by updating the session timestamp"""
+    data = await request.json()
+    session_id = data.get("session_id")
     
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print(f"Keep-alive request for session: {session_id}")
+    print(f"Active sessions: {list(active_sessions.keys())}")
+    
+    if not session_id or session_id not in active_sessions:
+        return JSONResponse(
+            status_code=404,
+            content={"error": "Session not found"}
+        )
+    
+    # Update the session timestamp to keep it "active"
+    active_sessions[session_id]["last_activity"] = time.time()
+    print(f"Updated last activity for session: {session_id}")
+    return {"status": "Session kept alive", "timestamp": active_sessions[session_id]["last_activity"]}
+
+@realtime.post("/close")
+async def close_session(request: Request):
+    """Close an active WebRTC session (for cleanup)"""
+    try:
+        data = await request.json()
+        session_id = data.get("session_id")
+        
+        if not session_id:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "session_id is required"}
+            )
+        
+        if session_id in active_sessions:
+            del active_sessions[session_id]
+            print(f"Closed session with ID: {session_id}")
+            return {"status": "Session closed"}
+        else:
+            print(f"Attempted to close non-existent session with ID: {session_id}")
+            return JSONResponse(
+                status_code=404,
+                content={"error": "Session not found"}
+            )
+    except Exception as e:
+        print(f"Error closing session: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error closing session: {str(e)}"}
+        )
+
+@realtime.get("/debug/sessions")
+async def debug_sessions():
+    """Debug endpoint to check active sessions"""
+    return {
+        "active_sessions_count": len(active_sessions),
+        "session_ids": list(active_sessions.keys()),
+        "sessions": active_sessions
+    }
+    
