@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafarAI Chatbot Test Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .chat-container {
+            border: 1px solid #ddd;
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 18px;
+            max-width: 70%;
+        }
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .bot-message {
+            background-color: #e9ecef;
+            color: #333;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 SafarAI Chatbot Test Client</h1>
+        <p>Test the integrated chatbot functionality with both regular and streaming responses.</p>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="message bot-message">
+                Welcome! I'm your SafarAI learning assistant. Ask me anything about English learning!
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="Ask me about English learning..." 
+                   onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()" id="sendButton">Send</button>
+            <button onclick="sendStreamingMessage()" id="streamButton">Send (Stream)</button>
+            <button onclick="clearChat()" id="clearButton">Clear</button>
+        </div>
+        
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:9999/ai';
+        let conversationHistory = [];
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+
+        function addMessage(content, isUser = false) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = content;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function addStreamingMessage() {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot-message';
+            messageDiv.id = 'streamingMessage';
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return messageDiv;
+        }
+
+        function updateStreamingMessage(content) {
+            const streamingMessage = document.getElementById('streamingMessage');
+            if (streamingMessage) {
+                streamingMessage.textContent = content;
+            }
+        }
+
+        function finalizeStreamingMessage() {
+            const streamingMessage = document.getElementById('streamingMessage');
+            if (streamingMessage) {
+                streamingMessage.id = '';
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<div class="loading"></div>';
+
+            addMessage(message, true);
+            input.value = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/chatbot`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversation_history: conversationHistory
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addMessage(data.response);
+                    conversationHistory = data.conversation_history;
+                    showStatus('Message sent successfully!', 'success');
+                } else {
+                    const error = await response.text();
+                    addMessage(`Error: ${error}`, false);
+                    showStatus('Failed to send message', 'error');
+                }
+            } catch (error) {
+                addMessage(`Error: ${error.message}`, false);
+                showStatus('Network error', 'error');
+            } finally {
+                sendButton.disabled = false;
+                sendButton.textContent = 'Send';
+            }
+        }
+
+        async function sendStreamingMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            const streamButton = document.getElementById('streamButton');
+            streamButton.disabled = true;
+            streamButton.innerHTML = '<div class="loading"></div>';
+
+            addMessage(message, true);
+            input.value = '';
+
+            const streamingDiv = addStreamingMessage();
+            let fullResponse = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/chatbot/stream`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversation_history: conversationHistory
+                    })
+                });
+
+                if (response.ok) {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        const chunk = decoder.decode(value);
+                        const lines = chunk.split('\n');
+
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const data = JSON.parse(line.slice(6));
+                                    if (data.content) {
+                                        fullResponse += data.content;
+                                        updateStreamingMessage(fullResponse);
+                                    }
+                                    if (data.done) {
+                                        finalizeStreamingMessage();
+                                        conversationHistory.push(
+                                            { role: 'user', content: message },
+                                            { role: 'assistant', content: fullResponse }
+                                        );
+                                        showStatus('Streaming message sent successfully!', 'success');
+                                        break;
+                                    }
+                                } catch (e) {
+                                    console.error('Error parsing streaming data:', e);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    const error = await response.text();
+                    streamingDiv.textContent = `Error: ${error}`;
+                    showStatus('Failed to send streaming message', 'error');
+                }
+            } catch (error) {
+                streamingDiv.textContent = `Error: ${error.message}`;
+                showStatus('Network error', 'error');
+            } finally {
+                streamButton.disabled = false;
+                streamButton.textContent = 'Send (Stream)';
+            }
+        }
+
+        function clearChat() {
+            document.getElementById('chatContainer').innerHTML = `
+                <div class="message bot-message">
+                    Welcome! I'm your SafarAI learning assistant. Ask me anything about English learning!
+                </div>
+            `;
+            conversationHistory = [];
+            showStatus('Chat cleared!', 'success');
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Test the connection on page load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch(`${API_BASE}/`);
+                if (response.ok) {
+                    showStatus('Connected to SafarAI API!', 'success');
+                } else {
+                    showStatus('API connection failed', 'error');
+                }
+            } catch (error) {
+                showStatus('Cannot connect to API. Make sure the server is running on port 9999', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

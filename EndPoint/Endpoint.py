@@ -8,9 +8,18 @@ import os
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 import uvicorn
 from util import parsingoutput as prs
 from safarai_realtime.backend import realtime
+# Add the SafarAI ChatBot directory to the path
+# chatbot_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'SafarAI ChatBot'))
+# sys.path.append(chatbot_path)
+# sys.path.append(os.path.join(chatbot_path, 'chatbot'))
+
+from safarai_chatbot.chatbot.chatbot import stream_response, system_prompt
+from langchain.schema import HumanMessage, AIMessage
+import json
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -153,6 +162,15 @@ class CorrectionRequest(BaseModel):
 class CorrectionResponse(BaseModel):
     score: int
     feedback: str
+
+# Chatbot models
+class ChatbotRequest(BaseModel):
+    message: str
+    conversation_history: list = []  # List of previous messages
+
+class ChatbotResponse(BaseModel):
+    response: str
+    conversation_history: list
 #Writing correction endpoint
 @app.post("/correction")
 async def get_correction(request: CorrectionRequest):
@@ -223,7 +241,84 @@ async def get_correction(request: CorrectionRequest):
     except Exception as e:
         raise HTTPException(status_code = 500, detail = str(e))
 
+# Chatbot endpoint - regular response
+@app.post("/chatbot", response_model=ChatbotResponse)
+async def chatbot_chat(request: ChatbotRequest):
+    """
+    Chat with the SafarAI learning assistant.
+    Returns a complete response with updated conversation history.
+    """
+    try:
+        # Build conversation history with system prompt
+        messages = [system_prompt]
+        
+        # Add conversation history if provided
+        for msg in request.conversation_history:
+            if msg.get("role") == "user":
+                messages.append(HumanMessage(content=msg.get("content", "")))
+            elif msg.get("role") == "assistant":
+                messages.append(AIMessage(content=msg.get("content", "")))
+        
+        # Add current user message
+        messages.append(HumanMessage(content=request.message))
+        
+        # Get response from chatbot
+        full_response = ""
+        for chunk in stream_response(messages):
+            if chunk.content:
+                full_response += chunk.content
+        
+        # Update conversation history
+        updated_history = request.conversation_history.copy()
+        updated_history.append({"role": "user", "content": request.message})
+        updated_history.append({"role": "assistant", "content": full_response})
+        
+        return ChatbotResponse(
+            response=full_response,
+            conversation_history=updated_history
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
+# Chatbot streaming endpoint
+@app.post("/chatbot/stream")
+async def chatbot_stream(request: ChatbotRequest):
+    """
+    Stream chat responses from the SafarAI learning assistant.
+    Returns a streaming response for real-time chat experience.
+    """
+    try:
+        # Build conversation history with system prompt
+        messages = [system_prompt]
+        
+        # Add conversation history if provided
+        for msg in request.conversation_history:
+            if msg.get("role") == "user":
+                messages.append(HumanMessage(content=msg.get("content", "")))
+            elif msg.get("role") == "assistant":
+                messages.append(AIMessage(content=msg.get("content", "")))
+        
+        # Add current user message
+        messages.append(HumanMessage(content=request.message))
+        
+        def generate_stream():
+            try:
+                for chunk in stream_response(messages):
+                    if chunk.content:
+                        # Format as Server-Sent Events
+                        yield f"data: {json.dumps({'content': chunk.content, 'done': False})}\n\n"
+                # Send completion signal
+                yield f"data: {json.dumps({'content': '', 'done': True})}\n\n"
+            except Exception as e:
+                yield f"data: {json.dumps({'error': str(e), 'done': True})}\n\n"
+        
+        return StreamingResponse(
+            generate_stream(),
+            media_type="text/plain",
+            headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 uvicorn.run(app, host = "0.0.0.0", port = 9999)
 

@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafarAI Learning Chatbot</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" href="logo1.png" type="image/x-icon">
+<style>
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.8s ease-in-out;
+}
+
+/* Dynamic background themes */
+body.theme-daily-life {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+body.theme-travel {
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+}
+
+body.theme-work-business {
+    background: linear-gradient(135deg, #636e72 0%, #2d3436 100%);
+}
+
+body.theme-hobbies {
+    background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+}
+
+body.theme-school-university {
+    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+}
+
+body.theme-culture-society {
+    background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+}
+
+/* Animated background elements */
+.background-animation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* Smooth theme transitions */
+.theme-transition {
+    transition: background 0.8s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* Travel theme animations */
+.travel-clouds {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300"><path d="M100,200 Q150,150 200,200 T300,200 T400,200 T500,200 T600,200 T700,200 T800,200 T900,200 L1000,200 L1000,300 L0,300 Z" fill="rgba(255,255,255,0.1)"/></svg>') repeat-x;
+    animation: cloudMove 20s linear infinite;
+}
+
+@keyframes cloudMove {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.travel-plane {
+    position: absolute;
+    top: 20%;
+    right: -50px;
+    font-size: 30px;
+    animation: planeFly 15s linear infinite;
+}
+
+@keyframes planeFly {
+    0% { transform: translateX(0) translateY(0); }
+    25% { transform: translateX(-25vw) translateY(-10px); }
+    50% { transform: translateX(-50vw) translateY(5px); }
+    75% { transform: translateX(-75vw) translateY(-5px); }
+    100% { transform: translateX(-100vw) translateY(0); }
+}
+
+/* Office theme animations */
+.office-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.office-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    animation: officeFloat 8s linear infinite;
+}
+
+@keyframes officeFloat {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-10vh) translateX(20px); opacity: 0; }
+}
+
+/* Daily Life theme animations */
+.daily-life-elements {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.daily-element {
+    position: absolute;
+    font-size: 20px;
+    opacity: 0.3;
+    animation: dailyFloat 12s ease-in-out infinite;
+}
+
+@keyframes dailyFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+/* Hobbies theme animations */
+.hobbies-sparkles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.sparkle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 50%;
+    animation: sparkleTwinkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkleTwinkle {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+/* School theme animations */
+.school-books {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.book {
+    position: absolute;
+    width: 30px;
+    height: 40px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+    animation: bookStack 6s ease-in-out infinite;
+}
+
+@keyframes bookStack {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+/* Culture theme animations */
+.culture-patterns {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255,255,255,0.05) 0%, transparent 50%);
+    animation: patternPulse 10s ease-in-out infinite;
+}
+
+@keyframes patternPulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+.container {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.12);
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: min(98vw, 1400px);
+    height: min(98vh, 800px);
+    margin: 0 auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    position: relative;
+}
+
+h1 {
+    font-weight: 600;
+    margin-bottom: 16px;
+    font-size: 2rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Select dropdown styling */
+select {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 8px 12px !important;
+    border-radius: 10px !important;
+    color: white !important;
+    font-size: 14px !important;
+    outline: none !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+select:focus {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
+}
+
+select option {
+    background: rgba(0, 0, 0, 0.9) !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    border: none !important;
+}
+
+select option:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+select option:checked {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+}
+
+/* Focus states for accessibility */
+button:focus,
+.avatar-btn:focus,
+select:focus,
+input:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .container {
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid white;
+    }
+    
+    button {
+        background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+        border: 2px solid white;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .travel-clouds,
+    .travel-plane,
+    .office-particle,
+    .daily-element,
+    .sparkle,
+    .book {
+        animation: none !important;
+    }
+}
+
+button {
+    background: linear-gradient(135deg, #ff758c, #ff7eb3);
+    border: none;
+    padding: 14px 28px;
+    margin: 8px;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 28px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(255, 117, 140, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 6px rgba(255, 117, 140, 0.2);
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(255, 117, 140, 0.4);
+}
+
+button:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+button:hover::before {
+    left: 100%;
+}
+
+/* Chat container styles */
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    scroll-behavior: smooth;
+}
+
+.message {
+    max-width: 80%;
+    padding: 12px 18px;
+    border-radius: 18px;
+    word-wrap: break-word;
+    animation: messageSlide 0.3s ease-out;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user-message {
+    background: linear-gradient(135deg, #ff758c, #ff7eb3);
+    color: white;
+    align-self: flex-end;
+    margin-left: auto;
+    box-shadow: 0 4px 12px rgba(255, 117, 140, 0.3);
+}
+
+.bot-message {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    align-self: flex-start;
+    margin-right: auto;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 18px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    align-self: flex-start;
+    margin-right: auto;
+    max-width: 80px;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    animation: typingBounce 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingBounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
+
+.chat-input-container {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 12px 18px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.chat-input:focus {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.chat-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.send-button {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #00b894, #00a085);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+}
+
+.send-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 184, 148, 0.4);
+}
+
+.send-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Theme selection styles */
+.theme-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.theme-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.theme-btn.active {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.theme-btn .icon {
+    font-size: 18px;
+}
+
+.theme-btn .label {
+    font-size: 10px;
+}
+
+/* Status indicators */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Loading spinner */
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 900px) {
+    .container {
+        height: 98vh;
+        padding: 16px;
+        gap: 16px;
+        width: min(98vw, 1000px);
+    }
+    
+    .chat-messages {
+        padding: 15px;
+    }
+    
+    .message {
+        max-width: 85%;
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .chat-input-container {
+        padding: 15px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .chat-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    button {
+        padding: 12px 24px;
+        font-size: 14px;
+        margin: 6px;
+    }
+}
+
+@media (max-width: 520px) {
+    .container {
+        padding: 12px;
+        gap: 12px;
+        width: 98vw;
+        height: 98vh;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .message {
+        max-width: 90%;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    .theme-btn {
+        padding: 8px 6px;
+        font-size: 10px;
+    }
+    
+    .theme-btn .icon {
+        font-size: 14px;
+    }
+}
+
+/* Scrollbar styling */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+</style>
+</head>
+<body>
+<!-- Dynamic background animations -->
+<div class="background-animation" id="backgroundAnimation"></div>
+
+<div class="container">
+    <h1>🤖 SafarAI Learning Chatbot</h1>
+    
+    <!-- Top Controls Row -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <!-- Theme Selection -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="themeSelect" style="margin: 0; font-weight: 600;">Theme:</label>
+            <select id="themeSelect">
+                <option value="default">Default</option>
+                <option value="daily-life">Daily Life</option>
+                <option value="travel">Travel</option>
+                <option value="work-business">Work/Business</option>
+                <option value="hobbies">Hobbies</option>
+                <option value="school-university">School/University</option>
+                <option value="culture-society">Culture & Society</option>
+            </select>
+        </div>
+        
+        <!-- Status Indicators -->
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="status-indicator">
+                <div id="connectionDot" class="status-dot" style="background: #ff6b6b;"></div>
+                <span id="connectionStatus">Disconnected</span>
+            </div>
+            <div class="status-indicator" id="typingStatus" style="display: none;">
+                <div class="status-dot" style="background: #00b894;"></div>
+                <span>AI is typing...</span>
+            </div>
+        </div>
+        
+        <!-- Control Buttons -->
+        <div style="display: flex; gap: 10px;">
+            <button id="clearChatBtn" style="background: rgba(255,255,255,0.15);">🗑️ Clear Chat</button>
+            <button id="exportChatBtn" style="background: rgba(0,255,0,0.2);">📥 Export</button>
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                👋 Welcome to SafarAI Learning Assistant! I'm here to help you learn English. Ask me anything about grammar, vocabulary, pronunciation, or any English learning topic!
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <input type="text" id="chatInput" class="chat-input" placeholder="Ask me about English learning..." 
+                   onkeypress="handleKeyPress(event)">
+            <button id="sendBtn" class="send-button" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Configuration
+const API_BASE = 'http://localhost:9999/ai';
+let conversationHistory = [];
+let isTyping = false;
+let currentTheme = 'default';
+
+// Theme configurations
+const themes = {
+    'default': {
+        background: 'linear-gradient(135deg, #6e8efb, #a777e3)',
+        animations: []
+    },
+    'daily-life': {
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        animations: ['daily-life-elements']
+    },
+    'travel': {
+        background: 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)',
+        animations: ['travel-clouds', 'travel-plane']
+    },
+    'work-business': {
+        background: 'linear-gradient(135deg, #636e72 0%, #2d3436 100%)',
+        animations: ['office-particles']
+    },
+    'hobbies': {
+        background: 'linear-gradient(135deg, #fd79a8 0%, #e84393 100%)',
+        animations: ['hobbies-sparkles']
+    },
+    'school-university': {
+        background: 'linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%)',
+        animations: ['school-books']
+    },
+    'culture-society': {
+        background: 'linear-gradient(135deg, #00b894 0%, #00a085 100%)',
+        animations: ['culture-patterns']
+    }
+};
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTheme();
+    checkConnection();
+    setupEventListeners();
+});
+
+function setupEventListeners() {
+    // Theme selection
+    document.getElementById('themeSelect').addEventListener('change', function(e) {
+        changeTheme(e.target.value);
+    });
+    
+    // Clear chat button
+    document.getElementById('clearChatBtn').addEventListener('click', clearChat);
+    
+    // Export chat button
+    document.getElementById('exportChatBtn').addEventListener('click', exportChat);
+}
+
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('safarai-chatbot-theme') || 'default';
+    document.getElementById('themeSelect').value = savedTheme;
+    changeTheme(savedTheme);
+}
+
+function changeTheme(themeName) {
+    currentTheme = themeName;
+    localStorage.setItem('safarai-chatbot-theme', themeName);
+    
+    const theme = themes[themeName];
+    if (!theme) return;
+    
+    // Update body class for theme-specific styling
+    document.body.className = `theme-${themeName}`;
+    
+    // Update background
+    document.body.style.background = theme.background;
+    
+    // Clear existing animations
+    clearAnimations();
+    
+    // Add new animations
+    if (theme.animations && theme.animations.length > 0) {
+        addAnimations(theme.animations);
+    }
+}
+
+function clearAnimations() {
+    const backgroundAnimation = document.getElementById('backgroundAnimation');
+    backgroundAnimation.innerHTML = '';
+}
+
+function addAnimations(animationTypes) {
+    const backgroundAnimation = document.getElementById('backgroundAnimation');
+    
+    animationTypes.forEach(type => {
+        const container = document.createElement('div');
+        container.className = type;
+        
+        switch(type) {
+            case 'daily-life-elements':
+                addDailyLifeElements(container);
+                break;
+            case 'travel-clouds':
+                addTravelClouds(container);
+                break;
+            case 'travel-plane':
+                addTravelPlane(container);
+                break;
+            case 'office-particles':
+                addOfficeParticles(container);
+                break;
+            case 'hobbies-sparkles':
+                addHobbiesSparkles(container);
+                break;
+            case 'school-books':
+                addSchoolBooks(container);
+                break;
+            case 'culture-patterns':
+                addCulturePatterns(container);
+                break;
+        }
+        
+        backgroundAnimation.appendChild(container);
+    });
+}
+
+function addDailyLifeElements(container) {
+    const elements = ['🏠', '☕', '📱', '🍎', '🚗', '💼', '🎵', '📚'];
+    for (let i = 0; i < 8; i++) {
+        const element = document.createElement('div');
+        element.className = 'daily-element';
+        element.textContent = elements[i];
+        element.style.left = Math.random() * 100 + '%';
+        element.style.top = Math.random() * 100 + '%';
+        element.style.animationDelay = Math.random() * 12 + 's';
+        container.appendChild(element);
+    }
+}
+
+function addTravelClouds(container) {
+    // Cloud animation is handled by CSS
+}
+
+function addTravelPlane(container) {
+    const plane = document.createElement('div');
+    plane.className = 'travel-plane';
+    plane.textContent = '✈️';
+    container.appendChild(plane);
+}
+
+function addOfficeParticles(container) {
+    for (let i = 0; i < 15; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'office-particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 8 + 's';
+        container.appendChild(particle);
+    }
+}
+
+function addHobbiesSparkles(container) {
+    for (let i = 0; i < 20; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle';
+        sparkle.style.left = Math.random() * 100 + '%';
+        sparkle.style.top = Math.random() * 100 + '%';
+        sparkle.style.animationDelay = Math.random() * 2 + 's';
+        container.appendChild(sparkle);
+    }
+}
+
+function addSchoolBooks(container) {
+    for (let i = 0; i < 6; i++) {
+        const book = document.createElement('div');
+        book.className = 'book';
+        book.style.left = Math.random() * 100 + '%';
+        book.style.top = Math.random() * 100 + '%';
+        book.style.animationDelay = Math.random() * 6 + 's';
+        container.appendChild(book);
+    }
+}
+
+function addCulturePatterns(container) {
+    // Pattern animation is handled by CSS
+}
+
+async function checkConnection() {
+    try {
+        const response = await fetch(`${API_BASE}/`);
+        if (response.ok) {
+            updateConnectionStatus(true);
+        } else {
+            updateConnectionStatus(false);
+        }
+    } catch (error) {
+        updateConnectionStatus(false);
+    }
+}
+
+function updateConnectionStatus(connected) {
+    const dot = document.getElementById('connectionDot');
+    const status = document.getElementById('connectionStatus');
+    
+    if (connected) {
+        dot.style.background = '#00b894';
+        status.textContent = 'Connected';
+    } else {
+        dot.style.background = '#ff6b6b';
+        status.textContent = 'Disconnected';
+    }
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (!message || isTyping) return;
+
+    // Add user message to chat
+    addMessage(message, 'user');
+    input.value = '';
+
+    // Show typing indicator
+    showTypingIndicator();
+
+    try {
+        // Send message to API
+        const response = await fetch(`${API_BASE}/chatbot`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: message,
+                conversation_history: conversationHistory
+            })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            hideTypingIndicator();
+            addMessage(data.response, 'bot');
+            conversationHistory = data.conversation_history;
+        } else {
+            hideTypingIndicator();
+            const error = await response.text();
+            addMessage(`Error: ${error}`, 'bot');
+        }
+    } catch (error) {
+        hideTypingIndicator();
+        addMessage(`Connection error: ${error.message}`, 'bot');
+    }
+}
+
+function addMessage(content, sender) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    messageDiv.textContent = content;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function showTypingIndicator() {
+    isTyping = true;
+    const chatMessages = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'typing-indicator';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+    `;
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Show typing status
+    document.getElementById('typingStatus').style.display = 'flex';
+}
+
+function hideTypingIndicator() {
+    isTyping = false;
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+    
+    // Hide typing status
+    document.getElementById('typingStatus').style.display = 'none';
+}
+
+function clearChat() {
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.innerHTML = `
+        <div class="message bot-message">
+            👋 Welcome to SafarAI Learning Assistant! I'm here to help you learn English. Ask me anything about grammar, vocabulary, pronunciation, or any English learning topic!
+        </div>
+    `;
+    conversationHistory = [];
+}
+
+function exportChat() {
+    const messages = document.querySelectorAll('.message');
+    let chatText = 'SafarAI Learning Chatbot - Conversation Export\n';
+    chatText += '=' .repeat(50) + '\n\n';
+    
+    messages.forEach(msg => {
+        const sender = msg.classList.contains('user-message') ? 'User' : 'AI Assistant';
+        const content = msg.textContent;
+        chatText += `${sender}: ${content}\n\n`;
+    });
+    
+    const blob = new Blob([chatText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `safarai-chat-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Periodic connection check
+setInterval(checkConnection, 30000); // Check every 30 seconds
+</script>
+</body>
+</html>
