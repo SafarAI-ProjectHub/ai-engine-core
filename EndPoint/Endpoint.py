@@ -206,8 +206,8 @@ async def get_correction(request: cls.CorrectionRequest):
         raise HTTPException(status_code = 500, detail = str(e))
 
 # Chatbot endpoint - regular response
-@app.post("/chatbot", response_model=ChatbotResponse)
-async def chatbot_chat(request: ChatbotRequest):
+@app.post("/chatbot", response_model=cls.ChatbotResponse)
+async def chatbot_chat(request: cls.ChatbotRequest):
     """
     Chat with the SafarAI learning assistant.
     Returns a complete response with updated conversation history.
@@ -237,7 +237,7 @@ async def chatbot_chat(request: ChatbotRequest):
         updated_history.append({"role": "user", "content": request.message})
         updated_history.append({"role": "assistant", "content": full_response})
         
-        return ChatbotResponse(
+        return cls.ChatbotResponse(
             response=full_response,
             conversation_history=updated_history
         )
@@ -246,7 +246,7 @@ async def chatbot_chat(request: ChatbotRequest):
 
 # Chatbot streaming endpoint
 @app.post("/chatbot/stream")
-async def chatbot_stream(request: ChatbotRequest):
+async def chatbot_stream(request: cls.ChatbotRequest):
     """
     Stream chat responses from the SafarAI learning assistant.
     Returns a streaming response for real-time chat experience.
