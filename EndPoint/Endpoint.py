@@ -134,14 +134,7 @@ async def translate_text(request: cls.translationRequest):
     
 
 
-# Chatbot models
-class ChatbotRequest(BaseModel):
-    message: str
-    conversation_history: list = []  # List of previous messages
 
-class ChatbotResponse(BaseModel):
-    response: str
-    conversation_history: list
 #Writing correction endpoint
 @app.post("/correction")
 async def get_correction(request: cls.CorrectionRequest):

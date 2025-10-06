@@ -34,3 +34,14 @@ class CorrectionRequest(BaseModel):
 class CorrectionResponse(BaseModel):
     score: int
     feedback: str
+
+
+
+
+class ChatbotRequest(BaseModel):
+    message: str
+    conversation_history: list = []  # List of previous messages
+
+class ChatbotResponse(BaseModel):
+    response: str
+    conversation_history: list
