@@ -11,12 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 import uvicorn
 from util import parsingoutput as prs
+from util import classes as cls
 from safarai_realtime.backend import realtime
-# Add the SafarAI ChatBot directory to the path
-# chatbot_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'SafarAI ChatBot'))
-# sys.path.append(chatbot_path)
-# sys.path.append(os.path.join(chatbot_path, 'chatbot'))
-
 from safarai_chatbot.chatbot.chatbot import stream_response, system_prompt
 from langchain.schema import HumanMessage, AIMessage
 import json
@@ -45,18 +41,8 @@ app.include_router(realtime)
 def read_root():
     return {"Hello": "World"}
 
-class AduioBookRequest(BaseModel):
-    text: str
-    id: int
-
-
-class AduioBookResponse(BaseModel):
-    message: str
-    text: str
-    file_path: str
-
-@app.post("/audio-book", response_model=AduioBookResponse)
-async def audio_book(request: AduioBookRequest):
+@app.post("/audio-book", response_model=cls.AduioBookResponse)
+async def audio_book(request: cls.AduioBookRequest):
     try:
         audio_book_path = Path(__file__).parent.parent/ "config" / "audiobookprompts.txt"
         with open(audio_book_path, "r", encoding="utf-8") as file:
@@ -81,7 +67,7 @@ async def audio_book(request: AduioBookRequest):
         ) as audio_response:
             await audio_response.stream_to_file(speech_file_path)
             
-        return AduioBookResponse(
+        return cls.AduioBookResponse(
             message="Audio book created successfully",
             text=text_response.output_text,
             file_path=str(speech_file_path)
@@ -90,15 +76,10 @@ async def audio_book(request: AduioBookRequest):
         raise HTTPException(status_code = 500, detail = str(e))
 
 # Text-to-Speech endpoint
-class TextToSpeechRequest(BaseModel):
-    text: str
-    id: int
-class TextToSpeechResponse(BaseModel):
-    message: str
-    file_path: str
+
 # Get user input for the text to be converted to speech
-@app.post("/text-to-speech", response_model=TextToSpeechResponse)
-async def text_to_speech(request: TextToSpeechRequest):
+@app.post("/text-to-speech", response_model=cls.TextToSpeechResponse)
+async def text_to_speech(request: cls.TextToSpeechRequest):
     try:
         speech_file_path = Path(__file__).parent.parent/ "speechfiles" / f"speech{request.id}.mp3"
 
@@ -110,20 +91,15 @@ async def text_to_speech(request: TextToSpeechRequest):
         ) as response:
             await response.stream_to_file(speech_file_path)
 
-        return TextToSpeechResponse(message="Speech synthesis complete", file_path=str(speech_file_path))
+        return cls.TextToSpeechResponse(message="Speech synthesis complete", file_path=str(speech_file_path))
     except Exception as e:
         raise HTTPException(status_code = 500, detail = str(e))
     
 # translation endpoint
-class translationRequest(BaseModel):
-    text : str
-    target_language: str
-class translationResponse(BaseModel):
-    translation: str
-    info: str
 
-@app.post("/translate", response_model=translationResponse)
-async def translate_text(request: translationRequest):
+
+@app.post("/translate", response_model=cls.translationResponse)
+async def translate_text(request: cls.translationRequest):
     try:
         response = await client.responses.create(
             model = "gpt-5-nano",
@@ -149,19 +125,14 @@ async def translate_text(request: translationRequest):
         # Parse the response to extract JSON
         response_data = prs.extract_json_from_response(response)
         # Return the translation response model
-        return translationResponse(
+        return cls.translationResponse(
             translation=response_data.get("translation", "error:translation not found"),
             info=response_data.get("info", "error:info not found")
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-class CorrectionRequest(BaseModel):
-    question: str
-    text: str
-class CorrectionResponse(BaseModel):
-    score: int
-    feedback: str
+
 
 # Chatbot models
 class ChatbotRequest(BaseModel):
@@ -173,7 +144,7 @@ class ChatbotResponse(BaseModel):
     conversation_history: list
 #Writing correction endpoint
 @app.post("/correction")
-async def get_correction(request: CorrectionRequest):
+async def get_correction(request: cls.CorrectionRequest):
     try:
         criteria_path = Path(__file__).parent.parent / "config" / "activitywritingcriteria.txt"
         example_path = Path(__file__).parent.parent / "config" / "writingexamples.txt"
@@ -234,7 +205,7 @@ async def get_correction(request: CorrectionRequest):
         )
         # Parse the response to extract JSON
         response_data = prs.extract_json_from_response(response, header="score:")
-        return CorrectionResponse(
+        return cls.CorrectionResponse(
             score=response_data.get("score", "error:score not found"),
             feedback=response_data.get("feedback", "error:feedback not found")
         )
