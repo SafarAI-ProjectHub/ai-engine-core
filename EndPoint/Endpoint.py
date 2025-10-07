@@ -150,8 +150,7 @@ async def get_correction(request: cls.CorrectionRequest):
             examples = file.read()
             
         response = await client.responses.create(
-            model = "gpt-5",
-            temperature=0,
+            model = "gpt-5-nano",
             instructions = f"""
                 You are a professional writing correction assistant.
                 Your task is to evaluate a user's written response based on:
@@ -177,10 +176,10 @@ async def get_correction(request: cls.CorrectionRequest):
                 ##Output Format##
 
                 Return the result in JSON with exactly these keys:
-                {
-                "score": int,
-                "feedback": str
-                }
+                {{
+                "score": "int",
+                "feedback": "string"
+                }}
 
                 ##Feedback Instructions##
 
@@ -198,9 +197,21 @@ async def get_correction(request: cls.CorrectionRequest):
         )
         # Parse the response to extract JSON
         response_data = prs.extract_json_from_response(response, header="score:")
+        
+        # Safely convert score to int
+        score = response_data.get("score", 0)
+        if isinstance(score, str):
+            try:
+                score = int(score)
+            except ValueError:
+                score = 0
+        
+        # Get feedback safely
+        feedback = response_data.get("feedback", "No feedback available")
+        
         return cls.CorrectionResponse(
-            score=response_data.get("score", "error:score not found"),
-            feedback=response_data.get("feedback", "error:feedback not found")
+            score=score,
+            feedback=feedback
         )
     except Exception as e:
         raise HTTPException(status_code = 500, detail = str(e))
@@ -284,6 +295,7 @@ async def chatbot_stream(request: cls.ChatbotRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-uvicorn.run(app, host = "0.0.0.0", port = 9999)
+if __name__ == "__main__":
+    uvicorn.run("Endpoint:app", host = "0.0.0.0", port = 9999, reload=True)
 
 
