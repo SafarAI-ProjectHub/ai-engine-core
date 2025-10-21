@@ -8,11 +8,13 @@ from text_to_speech import text_to_speech_router as text_to_speech_router
 from translation import translation_router as translation_router
 from correction import correction_router as correction_router
 from chatbot import chatbot_router as chatbot_router
+from new_chatbot import new_chatbot_router
 
 
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+app.include_router(new_chatbot_router)
 
 app.include_router(realtime)
 

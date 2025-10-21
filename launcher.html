@@ -296,14 +296,14 @@ h1 {
     <p class="subtitle">Choose your preferred learning experience</p>
     
     <div class="features-grid">
-        <!-- Regular Chatbot -->
-        <div class="feature-card" onclick="openChatbot('regular')">
+        <!-- New Chatbot -->
+        <div class="feature-card" onclick="openChatbot('new')">
             <span class="feature-icon">💬</span>
-            <div class="feature-title">Text Chatbot</div>
+            <div class="feature-title">Enhanced Chatbot</div>
             <div class="feature-description">
-                Traditional chat interface with complete responses. Perfect for detailed learning conversations and when you want to read the full response at once.
+                Advanced chat interface with conversation management. Create, manage, and delete conversations while getting complete responses for detailed learning.
             </div>
-            <span class="feature-badge">Standard</span>
+            <span class="feature-badge">Enhanced</span>
         </div>
         
         <!-- Streaming Chatbot -->
@@ -388,7 +388,7 @@ function updateStatus(dotId, textId, connected, message) {
 }
 
 function openChatbot(type) {
-    if (type === 'regular') {
+    if (type === 'new') {
         window.open('safarai_chatbot/UI/chatbot_frontend.html', '_blank');
     } else if (type === 'streaming') {
         window.open('safarai_chatbot/UI/chatbot_streaming_frontend.html', '_blank');

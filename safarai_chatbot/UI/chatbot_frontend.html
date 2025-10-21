@@ -689,6 +689,8 @@ button:hover::before {
         
         <!-- Control Buttons -->
         <div style="display: flex; gap: 10px;">
+            <button id="newConversationBtn" style="background: rgba(0,184,148,0.2);">🆕 New Conversation</button>
+            <button id="deleteConversationBtn" style="background: rgba(255,107,107,0.2);">🗑️ Delete Conversation</button>
             <button id="clearChatBtn" style="background: rgba(255,255,255,0.15);">🗑️ Clear Chat</button>
             <button id="exportChatBtn" style="background: rgba(0,255,0,0.2);">📥 Export</button>
         </div>
@@ -716,6 +718,7 @@ const API_BASE = 'http://localhost:9999/ai';
 let conversationHistory = [];
 let isTyping = false;
 let currentTheme = 'default';
+let currentConversationId = null;
 
 // Theme configurations
 const themes = {
@@ -754,6 +757,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
     checkConnection();
     setupEventListeners();
+    createNewConversation(); // Create initial conversation
 });
 
 function setupEventListeners() {
@@ -761,6 +765,12 @@ function setupEventListeners() {
     document.getElementById('themeSelect').addEventListener('change', function(e) {
         changeTheme(e.target.value);
     });
+    
+    // New conversation button
+    document.getElementById('newConversationBtn').addEventListener('click', createNewConversation);
+    
+    // Delete conversation button
+    document.getElementById('deleteConversationBtn').addEventListener('click', deleteCurrentConversation);
     
     // Clear chat button
     document.getElementById('clearChatBtn').addEventListener('click', clearChat);
@@ -944,23 +954,27 @@ async function sendMessage() {
     showTypingIndicator();
 
     try {
-        // Send message to API
-        const response = await fetch(`${API_BASE}/chatbot`, {
+        // Ensure we have a conversation ID
+        if (!currentConversationId) {
+            await createNewConversation();
+        }
+
+        // Send message to new chatbot API
+        const response = await fetch(`${API_BASE}/chatbot?conversation_id=${currentConversationId}&user_message=${encodeURIComponent(message)}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message: message,
-                conversation_history: conversationHistory
-            })
+            }
         });
 
         if (response.ok) {
-            const data = await response.json();
+            const data = await response.text();
             hideTypingIndicator();
-            addMessage(data.response, 'bot');
-            conversationHistory = data.conversation_history;
+            addMessage(data, 'bot');
+            conversationHistory.push(
+                { role: 'user', content: message },
+                { role: 'assistant', content: data }
+            );
         } else {
             hideTypingIndicator();
             const error = await response.text();
@@ -1008,6 +1022,61 @@ function hideTypingIndicator() {
     
     // Hide typing status
     document.getElementById('typingStatus').style.display = 'none';
+}
+
+async function createNewConversation() {
+    try {
+        const response = await fetch(`${API_BASE}/new_conversation`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            currentConversationId = data.conversation_id;
+            addMessage('🆕 New conversation created!', 'bot');
+            return true;
+        } else {
+            addMessage('❌ Failed to create new conversation', 'bot');
+            return false;
+        }
+    } catch (error) {
+        addMessage(`❌ Error creating conversation: ${error.message}`, 'bot');
+        return false;
+    }
+}
+
+async function deleteCurrentConversation() {
+    if (!currentConversationId) {
+        addMessage('❌ No conversation to delete', 'bot');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/delete_conversation?conversation_id=${currentConversationId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status === 'success') {
+                addMessage('🗑️ Conversation deleted successfully', 'bot');
+                currentConversationId = null;
+                conversationHistory = [];
+            } else {
+                addMessage('❌ Failed to delete conversation', 'bot');
+            }
+        } else {
+            addMessage('❌ Failed to delete conversation', 'bot');
+        }
+    } catch (error) {
+        addMessage(`❌ Error deleting conversation: ${error.message}`, 'bot');
+    }
 }
 
 function clearChat() {
