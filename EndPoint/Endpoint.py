@@ -9,6 +9,7 @@ from translation import translation_router as translation_router
 from correction import correction_router as correction_router
 from chatbot import chatbot_router as chatbot_router
 from new_chatbot import new_chatbot_router
+from util.del_speech_files import del_speech_files_router as del_speech_files_router
 
 
 @app.get("/")
@@ -27,6 +28,8 @@ app.include_router(translation_router)
 app.include_router(correction_router)
 
 app.include_router(chatbot_router)
+
+app.include_router(del_speech_files_router)
     
 if __name__ == "__main__":
     uvicorn.run("Endpoint:app", host = "0.0.0.0", port = 9999, reload=True)
