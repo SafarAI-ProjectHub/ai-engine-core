@@ -13,6 +13,8 @@ class AduioBookResponse(BaseModel):
 class TextToSpeechRequest(BaseModel):
     text: str
     id: int
+    voice: str = "nova"
+    accent: str
 class TextToSpeechResponse(BaseModel):
     message: str
     file_path: str
