@@ -13,8 +13,6 @@ import uvicorn
 from util import parsingoutput as prs
 from util import classes as cls
 from safarai_chatbot.chatbot.chatbot import stream_response, system_prompt
-from langchain.schema import HumanMessage, AIMessage
-import json
 
 
 try: 
@@ -23,8 +21,18 @@ try:
     key = os.getenv("OPEN_AI_KEY")
     client = AsyncOpenAI(api_key=key)
 
+    # Check if running behind a reverse proxy (production) or directly (development)
+    # Set USE_ROOT_PATH=true in .env for production with reverse proxy
+    use_root_path = os.getenv("USE_ROOT_PATH", "false").lower() == "true"
+    root_path = "/ai" if use_root_path else None
+
     # Define a simple FastAPI app
-    app = FastAPI(root_path="/ai")
+    app = FastAPI(
+        root_path=root_path,
+        docs_url="/docs",
+        redoc_url="/redoc",
+        openapi_url="/openapi.json"
+    )
 
     # Add CORS middleware
     app.add_middleware(
