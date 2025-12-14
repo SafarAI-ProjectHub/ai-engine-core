@@ -1,7 +1,7 @@
 import os
 import dotenv
 from langchain_openai import ChatOpenAI
-from langchain.schema import (
+from langchain_core.messages import (
     SystemMessage,
     HumanMessage,
     AIMessage,

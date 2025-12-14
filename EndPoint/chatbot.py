@@ -1,4 +1,6 @@
-from util.config import cls, HTTPException, APIRouter, stream_response, system_prompt, HumanMessage, AIMessage, json, StreamingResponse
+from util.config import cls, HTTPException, APIRouter, stream_response, system_prompt, StreamingResponse
+from langchain_core.messages import HumanMessage, AIMessage
+import json
 
 chatbot_router = APIRouter(tags=["chatbot"])
 
