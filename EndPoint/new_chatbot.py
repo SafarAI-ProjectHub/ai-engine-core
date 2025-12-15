@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import requests as req
-import json
-
+from util.config import cls
+from util.token_utils import count_tokens
 load_dotenv()
+
 api_key = os.getenv("OPEN_AI_KEY")
 new_chatbot_router = APIRouter(tags=["new_chatbot"])
 client = OpenAI(api_key=api_key)
@@ -47,15 +47,24 @@ async def delete_conversation(conversation_id: str):
     
 
 @new_chatbot_router.post("/chatbot")
-async def chat(conversation_id: str, user_message: str):
+async def chat(request: cls.NewChatbotRequest):
     try:
         response = client.responses.create(
             model="gpt-4.1",
-            conversation=conversation_id,
-            input = user_message,
+            conversation=request.conversation_id,
+            input = request.message,
             instructions=prompt
         )
 
-        return response.output_text
+        token_count = count_tokens(request.message, "gpt-4.1") + count_tokens(response.output_text, "gpt-4.1")
+        return cls.NewChatbotResponse(
+            status="success",
+            response=response.output_text,
+            token_count=token_count
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return cls.NewChatbotResponse(
+            status="False",
+            response=f"An error occurred while processing the request: {str(e)}",
+            token_count=0
+        )

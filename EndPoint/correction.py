@@ -1,5 +1,6 @@
 from util.config import client, cls, Path, HTTPException, APIRouter, prs
 from util.complition_model import complition_model
+from util.token_utils import count_tokens
 
 correction_router = APIRouter(tags=["correction"])
 
@@ -76,10 +77,21 @@ async def get_correction(request: cls.CorrectionRequest):
         
         # Get feedback safely
         feedback = response_data.get("feedback", "No feedback available")
-        
+
+        # Count tokens for input and model output text
+        output_text = response.output_text
+        token_count = count_tokens(request.text, "gpt-4o") + count_tokens(output_text, "gpt-4o")
+
         return cls.CorrectionResponse(
+            status="success",
             score=score,
-            feedback=feedback
+            feedback=feedback,
+            token_count=token_count,
         )
     except Exception as e:
-        raise HTTPException(status_code = 500, detail = str(e))
+        return cls.CorrectionResponse(
+            status="False",
+            score=0,
+            feedback=f"An error occurred while processing the request: {str(e)}",
+            token_count=0,
+        )

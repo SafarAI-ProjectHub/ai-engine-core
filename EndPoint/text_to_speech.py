@@ -1,6 +1,7 @@
 from util.config import client, cls, Path, HTTPException, APIRouter
 from util.audio_model import audio_model
-
+from util.token_utils import count_tokens
+from util.audio_utils import get_audio_duration_seconds
 text_to_speech_router = APIRouter(tags=["text-to-speech"])
 
 
@@ -22,6 +23,19 @@ async def text_to_speech(request: cls.TextToSpeechRequest):
             speech_file_path=speech_file_path
         )
 
-        return cls.TextToSpeechResponse(message="Speech synthesis complete", file_path=str(speech_file_path))
+        token_count = count_tokens(request.text, "gpt-4o-mini")
+        return cls.TextToSpeechResponse(
+            status="success",
+            message="Speech synthesis complete", 
+            file_path=str(speech_file_path),
+            token_count=token_count,
+            duration=get_audio_duration_seconds(str(speech_file_path))
+            )
     except Exception as e:
-        raise HTTPException(status_code = 500, detail = str(e))
+        return cls.TextToSpeechResponse(
+            status="False",
+            message=f"An error occurred while processing the request: {str(e)}",
+            file_path="",
+            token_count=0,
+            duration=0
+        )

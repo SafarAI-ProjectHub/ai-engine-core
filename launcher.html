@@ -83,7 +83,7 @@ h1 {
 .subtitle {
     font-size: 1rem;
     opacity: 0.9;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
     font-weight: 400;
 }
 
@@ -295,6 +295,7 @@ h1 {
     <h1>🤖 SafarAI Learning Platform</h1>
     <p class="subtitle">Choose your preferred learning experience</p>
     
+    <!-- Main Experiences -->
     <div class="features-grid">
         <!-- New Chatbot -->
         <div class="feature-card" onclick="openChatbot('new')">
@@ -325,7 +326,63 @@ h1 {
             </div>
             <span class="feature-badge">Voice</span>
         </div>
-        
+    </div>
+
+    <!-- Developer / QA Testing Console -->
+    <p class="subtitle" style="margin-top: 8px; margin-bottom: 16px; font-size: 0.95rem; opacity: 0.95;">
+        Developer / QA Testing Console – directly test each API endpoint with full controls
+    </p>
+
+    <div class="features-grid" style="margin-top: 0;">
+        <!-- Translation Tester -->
+        <div class="feature-card" onclick="openTester('translation')">
+            <span class="feature-icon">🌐</span>
+            <div class="feature-title">Translation Tester</div>
+            <div class="feature-description">
+                Send any text to the translation API, choose the target language, and inspect the structured JSON response with translation and extra info.
+            </div>
+            <span class="feature-badge">API Test</span>
+        </div>
+
+        <!-- Text-to-Speech Tester -->
+        <div class="feature-card" onclick="openTester('tts')">
+            <span class="feature-icon">🗣️</span>
+            <div class="feature-title">Text-to-Speech Tester</div>
+            <div class="feature-description">
+                Convert text into speech with selectable voice and accent, then play back or download the generated audio file and view token usage.
+            </div>
+            <span class="feature-badge">API Test</span>
+        </div>
+
+        <!-- Audio Book Tester -->
+        <div class="feature-card" onclick="openTester('audio_book')">
+            <span class="feature-icon">📖</span>
+            <div class="feature-title">Audio Book Tester</div>
+            <div class="feature-description">
+                Generate full audio books from longer texts using the audiobook prompts, and preview the synthesized audio with duration and token stats.
+            </div>
+            <span class="feature-badge">API Test</span>
+        </div>
+
+        <!-- Writing Correction Tester -->
+        <div class="feature-card" onclick="openTester('correction')">
+            <span class="feature-icon">✏️</span>
+            <div class="feature-title">Writing Correction Tester</div>
+            <div class="feature-description">
+                Submit questions and student answers to the correction API, visualize scores out of 25, and review detailed feedback for each criteria.
+            </div>
+            <span class="feature-badge">API Test</span>
+        </div>
+
+        <!-- Speech Files Cleanup -->
+        <div class="feature-card" onclick="openTester('cleanup')">
+            <span class="feature-icon">🧹</span>
+            <div class="feature-title">Speech Files Cleanup</div>
+            <div class="feature-description">
+                Quickly trigger cleanup of generated speech files from the server to free disk space after testing audio-book and text-to-speech endpoints.
+            </div>
+            <span class="feature-badge">Maintenance</span>
+        </div>
     </div>
     
     <div class="status-bar">
@@ -336,6 +393,9 @@ h1 {
         <div class="status-indicator">
             <div id="realtimeStatusDot" class="status-dot" style="background: #ff6b6b;"></div>
             <span id="realtimeStatus">Checking Realtime service...</span>
+        </div>
+        <div class="status-indicator">
+            <span style="font-size: 0.8rem; opacity: 0.9;">Base URL: http://localhost:9999</span>
         </div>
     </div>
 </div>
@@ -349,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function checkAPIConnection() {
     try {
-        const response = await fetch('http://localhost:9999/ai/');
+        const response = await fetch('http://localhost:9999/');
         if (response.ok) {
             updateStatus('apiStatusDot', 'apiStatus', true, 'API Connected');
         } else {
@@ -363,7 +423,7 @@ async function checkAPIConnection() {
 async function checkRealtimeConnection() {
     try {
         // Check if realtime service is available by checking the debug endpoint
-        const response = await fetch('http://localhost:9999/ai/realtime/debug/sessions');
+        const response = await fetch('http://localhost:9999/realtime/debug/sessions');
         if (response.ok) {
             updateStatus('realtimeStatusDot', 'realtimeStatus', true, 'Realtime Ready');
         } else {
@@ -397,6 +457,20 @@ function openChatbot(type) {
 
 function openRealtime() {
     window.open('safarai_realtime/frontend/call.html', '_blank');
+}
+
+function openTester(type) {
+    if (type === 'translation') {
+        window.open('translation_tester.html', '_blank');
+    } else if (type === 'tts') {
+        window.open('tts_tester.html', '_blank');
+    } else if (type === 'audio_book') {
+        window.open('audio_book_tester.html', '_blank');
+    } else if (type === 'correction') {
+        window.open('correction_tester.html', '_blank');
+    } else if (type === 'cleanup') {
+        window.open('cleanup_tester.html', '_blank');
+    }
 }
 
 

@@ -714,7 +714,7 @@ button:hover::before {
 
 <script>
 // Configuration
-const API_BASE = 'http://localhost:9999/ai';
+const API_BASE = 'http://localhost:9999';
 let conversationHistory = [];
 let isTyping = false;
 let currentTheme = 'default';
@@ -959,12 +959,16 @@ async function sendMessage() {
             await createNewConversation();
         }
 
-        // Send message to new chatbot API
-        const response = await fetch(`${API_BASE}/chatbot?conversation_id=${currentConversationId}&user_message=${encodeURIComponent(message)}`, {
+        // Send message to new chatbot API with JSON body matching NewChatbotRequest
+        const response = await fetch(`${API_BASE}/chatbot`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-            }
+            },
+            body: JSON.stringify({
+                conversation_id: currentConversationId,
+                message: message
+            })
         });
 
         if (response.ok) {

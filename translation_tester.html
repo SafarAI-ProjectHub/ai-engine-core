@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafarAI Translation Tester</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" href="logo1.png" type="image/x-icon">
+<style>
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+}
+.container {
+    text-align: left;
+    background: rgba(255, 255, 255, 0.12);
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: min(98vw, 1100px);
+    height: min(98vh, 760px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+h1 {
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    font-size: 1.8rem;
+}
+.subtitle {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin-bottom: 8px;
+}
+.layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+}
+.panel {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+}
+label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+textarea,
+select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+    resize: vertical;
+    min-height: 40px;
+}
+textarea {
+    min-height: 120px;
+    max-height: 260px;
+}
+textarea::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+button {
+    background: linear-gradient(135deg, #00b894, #00a085);
+    border: none;
+    padding: 12px 22px;
+    margin-top: 8px;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    align-self: flex-start;
+}
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 184, 148, 0.4);
+}
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.status-ok {
+    background: #00b894;
+}
+.status-error {
+    background: #ff6b6b;
+}
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.box {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 12px;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 0.9rem;
+}
+.box-title {
+    font-size: 0.8rem;
+    opacity: 0.85;
+    margin-bottom: 4px;
+}
+.box-content {
+    font-size: 0.9rem;
+}
+pre {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 0.8rem;
+    color: #f8f8f8;
+    overflow: auto;
+    flex: 1;
+}
+.error-box {
+    margin-top: 6px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255, 107, 107, 0.16);
+    border: 1px solid rgba(255, 107, 107, 0.6);
+    font-size: 0.8rem;
+}
+@media (max-width: 900px) {
+    .container {
+        height: auto;
+        min-height: 100vh;
+        margin: 8px;
+    }
+    .layout {
+        grid-template-columns: 1fr;
+    }
+    .two-col {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div>
+        <h1>🌐 Translation API Tester</h1>
+        <div class="subtitle">
+            Test the <code>/translation</code> endpoint: send source text and target language, then inspect the structured JSON response.
+        </div>
+        <div class="status-pill" id="statusPill">
+            <span class="status-dot status-error" id="statusDot"></span>
+            <span id="statusText">Idle – no request sent yet</span>
+        </div>
+    </div>
+
+    <div class="layout">
+        <!-- Left: Request form -->
+        <div class="panel">
+            <div>
+                <label for="textInput">Source text</label>
+                <textarea id="textInput" placeholder="Enter the sentence or paragraph you want to translate..."></textarea>
+            </div>
+            <div>
+                <label for="languageSelect">Target language</label>
+                <select id="languageSelect">
+                    <option value="Arabic">Arabic</option>
+                    <option value="English">English</option>
+                    <option value="French">French</option>
+                    <option value="German">German</option>
+                    <option value="Spanish">Spanish</option>
+                </select>
+            </div>
+            <button id="sendBtn" onclick="sendRequest()">Send Request</button>
+        </div>
+
+        <!-- Right: Response -->
+        <div class="panel">
+            <div class="two-col">
+                <div class="box">
+                    <div class="box-title">Translation</div>
+                    <div class="box-content" id="translationBox">-</div>
+                </div>
+                <div class="box">
+                    <div class="box-title">Info / Explanation</div>
+                    <div class="box-content" id="infoBox">-</div>
+                </div>
+            </div>
+            <pre id="jsonOutput">{}</pre>
+            <div id="errorBox" class="error-box" style="display:none;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API_BASE = 'http://localhost:9999';
+
+function setStatus(ok, text) {
+    const dot = document.getElementById('statusDot');
+    const pillText = document.getElementById('statusText');
+    dot.className = 'status-dot ' + (ok ? 'status-ok' : 'status-error');
+    pillText.textContent = text;
+}
+
+async function sendRequest() {
+    const text = document.getElementById('textInput').value.trim();
+    const target_language = document.getElementById('languageSelect').value;
+
+    const sendBtn = document.getElementById('sendBtn');
+    const jsonOutput = document.getElementById('jsonOutput');
+    const errorBox = document.getElementById('errorBox');
+    const translationBox = document.getElementById('translationBox');
+    const infoBox = document.getElementById('infoBox');
+
+    errorBox.style.display = 'none';
+    errorBox.textContent = '';
+
+    if (!text) {
+        errorBox.style.display = 'block';
+        errorBox.textContent = 'Please enter some text to translate.';
+        setStatus(false, 'Validation error');
+        return;
+    }
+
+    const payload = {
+        text: text,
+        target_language: target_language
+    };
+
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending...';
+    setStatus(false, 'Sending request...');
+
+    const start = performance.now();
+    try {
+        const response = await fetch(API_BASE + '/translation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const elapsed = Math.round(performance.now() - start);
+        if (!response.ok) {
+            const textErr = await response.text();
+            errorBox.style.display = 'block';
+            errorBox.textContent = 'HTTP ' + response.status + ': ' + textErr;
+            jsonOutput.textContent = '{}';
+            translationBox.textContent = '-';
+            infoBox.textContent = '-';
+            setStatus(false, 'Request failed (' + elapsed + ' ms)');
+            return;
+        }
+
+        const data = await response.json();
+        jsonOutput.textContent = JSON.stringify(data, null, 2);
+
+        translationBox.textContent = data.translation || '—';
+        infoBox.textContent = data.info || '—';
+
+        const ok = data.status === 'success';
+        setStatus(ok, (ok ? 'Success' : 'Completed with status: ' + data.status) + ' (' + elapsed + ' ms)');
+    } catch (err) {
+        errorBox.style.display = 'block';
+        errorBox.textContent = 'Network or parsing error: ' + err.message;
+        setStatus(false, 'Request error');
+    } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send Request';
+    }
+}
+</script>
+</body>
+</html>
+
+

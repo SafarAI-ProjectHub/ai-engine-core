@@ -1,6 +1,7 @@
 from dis import Instruction
 from util.config import client, cls, HTTPException, APIRouter, prs
 from util.complition_model import complition_model
+from util.token_utils import count_tokens
 
 translation_router  = APIRouter(tags=["translation"])
 
@@ -33,10 +34,18 @@ async def translate_text(request: cls.translationRequest):
         )
         # Parse the response to extract JSON
         response_data = prs.extract_json_from_response(response)
+        token_count = count_tokens(request.text, "gpt-5-nano") + count_tokens(response_data.get("translation", ""), "gpt-5-nano") + count_tokens(response_data.get("info", ""), "gpt-5-nano")
         # Return the translation response model
         return cls.translationResponse(
+            status="success",
             translation=response_data.get("translation", "error:translation not found"),
-            info=response_data.get("info", "error:info not found")
+            info=response_data.get("info", "error:info not found"),
+            token_count=token_count
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return cls.translationResponse(
+            status="False",
+            translation=f"An error occurred while processing the request: {str(e)}",
+            info=f"An error occurred while processing the request: {str(e)}",
+            token_count=0
+        )
