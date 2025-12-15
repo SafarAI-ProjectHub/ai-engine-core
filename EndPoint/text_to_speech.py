@@ -5,7 +5,7 @@ from util.audio_utils import get_audio_duration_seconds
 text_to_speech_router = APIRouter(tags=["text-to-speech"])
 
 
-@text_to_speech_router.post("/text-to-speech", response_model=cls.TextToSpeechResponse)
+@text_to_speech_router.post("/text-to-speech", response_model=cls.ApiResponse)
 async def text_to_speech(request: cls.TextToSpeechRequest):
     try:
         speech_file_path = Path(__file__).parent.parent/ "speechfiles" / f"speech_{request.id}.mp3"
@@ -24,18 +24,31 @@ async def text_to_speech(request: cls.TextToSpeechRequest):
         )
 
         token_count = count_tokens(request.text, "gpt-4o-mini")
-        return cls.TextToSpeechResponse(
+        data = cls.TextToSpeechResponse(
             status="success",
             message="Speech synthesis complete", 
             file_path=str(speech_file_path),
             token_count=token_count,
             duration=get_audio_duration_seconds(str(speech_file_path))
-            )
+        )
+        usage = cls.Usage(tokens=token_count, duration_seconds=data.duration)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="tts",
+        )
     except Exception as e:
-        return cls.TextToSpeechResponse(
+        data = cls.TextToSpeechResponse(
             status="False",
             message=f"An error occurred while processing the request: {str(e)}",
             file_path="",
             token_count=0,
-            duration=0
+            duration=0,
+        )
+        usage = cls.Usage(tokens=0, duration_seconds=0)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="tts",
+            success=False,
         )

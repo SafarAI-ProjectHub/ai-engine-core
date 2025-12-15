@@ -93,9 +93,16 @@ async def chatbot_stream(request: cls.ChatbotRequest):
             headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
         )
     except Exception as e:
-        return cls.ChatbotResponse(
+        data = cls.ChatbotResponse(
             status="False",
             response=f"An error occurred while processing the request: {str(e)}",
             conversation_history=request.conversation_history,
-            token_count=0
+            token_count=0,
+        )
+        usage = cls.Usage(tokens=0)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="chatbot_stream",
+            success=False,
         )

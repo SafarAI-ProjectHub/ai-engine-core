@@ -318,14 +318,16 @@ async function sendRequest() {
             return;
         }
 
-        const data = await response.json();
-        jsonOutput.textContent = JSON.stringify(data, null, 2);
+        const envelope = await response.json();
+        jsonOutput.textContent = JSON.stringify(envelope, null, 2);
+
+        const data = envelope && envelope.data ? envelope.data : {};
 
         updateScore(typeof data.score === 'number' ? data.score : parseInt(data.score || '0', 10));
         feedbackBox.textContent = data.feedback || 'No feedback available.';
 
-        const ok = data.status === 'success';
-        setStatus(ok, (ok ? 'Success' : 'Completed with status: ' + data.status) + ' (' + elapsed + ' ms)');
+        const ok = envelope && typeof envelope.success === 'boolean' ? envelope.success : (data.status === 'success');
+        setStatus(ok, (ok ? 'Success' : 'Completed with status: ' + (data.status || 'unknown')) + ' (' + elapsed + ' ms)');
     } catch (err) {
         errorBox.style.display = 'block';
         errorBox.textContent = 'Network or parsing error: ' + err.message;

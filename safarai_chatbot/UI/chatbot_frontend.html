@@ -959,7 +959,8 @@ async function sendMessage() {
             await createNewConversation();
         }
 
-        // Send message to new chatbot API with JSON body matching NewChatbotRequest
+        // Send message to new chatbot API with JSON body matching NewChatbotRequest,
+        // and handle the standard ApiResponse envelope.
         const response = await fetch(`${API_BASE}/chatbot`, {
             method: 'POST',
             headers: {
@@ -972,12 +973,14 @@ async function sendMessage() {
         });
 
         if (response.ok) {
-            const data = await response.text();
+            const envelope = await response.json();
+            const data = envelope && envelope.data ? envelope.data : null;
+            const reply = data && data.response ? data.response : JSON.stringify(envelope);
             hideTypingIndicator();
-            addMessage(data, 'bot');
+            addMessage(reply, 'bot');
             conversationHistory.push(
                 { role: 'user', content: message },
-                { role: 'assistant', content: data }
+                { role: 'assistant', content: reply }
             );
         } else {
             hideTypingIndicator();
@@ -1038,7 +1041,8 @@ async function createNewConversation() {
         });
 
         if (response.ok) {
-            const data = await response.json();
+            const envelope = await response.json();
+            const data = envelope && envelope.data ? envelope.data : {};
             currentConversationId = data.conversation_id;
             addMessage('🆕 New conversation created!', 'bot');
             return true;
@@ -1067,8 +1071,9 @@ async function deleteCurrentConversation() {
         });
 
         if (response.ok) {
-            const data = await response.json();
-            if (data.status === 'success') {
+            const envelope = await response.json();
+            const success = envelope && typeof envelope.success === 'boolean' ? envelope.success : false;
+            if (success) {
                 addMessage('🗑️ Conversation deleted successfully', 'bot');
                 currentConversationId = null;
                 conversationHistory = [];

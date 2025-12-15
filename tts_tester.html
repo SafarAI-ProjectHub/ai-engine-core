@@ -331,8 +331,10 @@ async function sendRequest() {
             return;
         }
 
-        const data = await response.json();
-        jsonOutput.textContent = JSON.stringify(data, null, 2);
+        const envelope = await response.json();
+        jsonOutput.textContent = JSON.stringify(envelope, null, 2);
+
+        const data = envelope && envelope.data ? envelope.data : {};
 
         tokensMetric.textContent = data.token_count != null ? String(data.token_count) : '-';
         durationMetric.textContent = data.duration != null ? data.duration + ' s' : '-';
@@ -357,8 +359,8 @@ async function sendRequest() {
             audioPlayer.removeAttribute('src');
         }
 
-        const ok = data.status === 'success';
-        setStatus(ok, (ok ? 'Success' : 'Completed with status: ' + data.status) + ' (' + elapsed + ' ms)');
+        const ok = envelope && typeof envelope.success === 'boolean' ? envelope.success : (data.status === 'success');
+        setStatus(ok, (ok ? 'Success' : 'Completed with status: ' + (data.status || 'unknown')) + ' (' + elapsed + ' ms)');
     } catch (err) {
         errorBox.style.display = 'block';
         errorBox.textContent = 'Network or parsing error: ' + err.message;

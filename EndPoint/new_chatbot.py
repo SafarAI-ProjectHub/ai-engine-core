@@ -23,7 +23,11 @@ You're talking to kids or teenagers."""
 async def new_conversation():
     try:
         coversationID = client.conversations.create()
-        return {"conversation_id": coversationID.id}
+        data = {"conversation_id": coversationID.id}
+        return cls.build_response(
+            data=data,
+            endpoint_key="new_chatbot_new_conversation",
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
@@ -39,14 +43,25 @@ async def delete_conversation(conversation_id: str):
         response = req.delete(url, headers=headers)
 
         if response.status_code == 200:
-            return {"message": "Conversation deleted successfully", "status": "success"}
+            data = {"message": "Conversation deleted successfully", "status": "success"}
+            success = True
         else:
-            return {"message": "Failed to delete conversation", "status": "error", "details": response.json()}
+            data = {
+                "message": "Failed to delete conversation",
+                "status": "error",
+                "details": response.json(),
+            }
+            success = False
+        return cls.build_response(
+            data=data,
+            endpoint_key="new_chatbot_delete_conversation",
+            success=success,
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@new_chatbot_router.post("/chatbot")
+@new_chatbot_router.post("/chatbot", response_model=cls.ApiResponse)
 async def chat(request: cls.NewChatbotRequest):
     try:
         response = client.responses.create(
@@ -56,15 +71,30 @@ async def chat(request: cls.NewChatbotRequest):
             instructions=prompt
         )
 
-        token_count = count_tokens(request.message, "gpt-4.1") + count_tokens(response.output_text, "gpt-4.1")
-        return cls.NewChatbotResponse(
+        token_count = count_tokens(request.message, "gpt-4.1") + count_tokens(
+            response.output_text, "gpt-4.1"
+        )
+        data = cls.NewChatbotResponse(
             status="success",
             response=response.output_text,
-            token_count=token_count
+            token_count=token_count,
+        )
+        usage = cls.Usage(tokens=token_count)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="new_chatbot_chat",
         )
     except Exception as e:
-        return cls.NewChatbotResponse(
+        data = cls.NewChatbotResponse(
             status="False",
             response=f"An error occurred while processing the request: {str(e)}",
-            token_count=0
+            token_count=0,
+        )
+        usage = cls.Usage(tokens=0)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="new_chatbot_chat",
+            success=False,
         )

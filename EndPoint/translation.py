@@ -5,7 +5,7 @@ from util.token_utils import count_tokens
 
 translation_router  = APIRouter(tags=["translation"])
 
-@translation_router.post("/translation", response_model=cls.translationResponse)
+@translation_router.post("/translation", response_model=cls.ApiResponse)
 async def translate_text(request: cls.translationRequest):
     try:
 
@@ -34,18 +34,36 @@ async def translate_text(request: cls.translationRequest):
         )
         # Parse the response to extract JSON
         response_data = prs.extract_json_from_response(response)
-        token_count = count_tokens(request.text, "gpt-5-nano") + count_tokens(response_data.get("translation", ""), "gpt-5-nano") + count_tokens(response_data.get("info", ""), "gpt-5-nano")
-        # Return the translation response model
-        return cls.translationResponse(
+        token_count = (
+            count_tokens(request.text, "gpt-5-nano")
+            + count_tokens(response_data.get("translation", ""), "gpt-5-nano")
+            + count_tokens(response_data.get("info", ""), "gpt-5-nano")
+        )
+
+        # Build inner data payload
+        data = cls.translationResponse(
             status="success",
             translation=response_data.get("translation", "error:translation not found"),
             info=response_data.get("info", "error:info not found"),
-            token_count=token_count
+            token_count=token_count,
+        )
+        usage = cls.Usage(tokens=token_count)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="translation",
         )
     except Exception as e:
-        return cls.translationResponse(
+        data = cls.translationResponse(
             status="False",
             translation=f"An error occurred while processing the request: {str(e)}",
             info=f"An error occurred while processing the request: {str(e)}",
-            token_count=0
+            token_count=0,
+        )
+        usage = cls.Usage(tokens=0)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="translation",
+            success=False,
         )

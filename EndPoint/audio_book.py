@@ -4,7 +4,7 @@ from util.token_utils import count_tokens
 from util.audio_utils import get_audio_duration_seconds
 audio_book_router = APIRouter(tags=["audio-book"])
 
-@audio_book_router.post("/audio-book", response_model=cls.AduioBookResponse)
+@audio_book_router.post("/audio-book", response_model=cls.ApiResponse)
 async def audio_book(request: cls.AduioBookRequest):
     try:
         audio_book_path = Path(__file__).parent.parent/ "config" / "audiobook_prompt.txt"
@@ -29,26 +29,39 @@ async def audio_book(request: cls.AduioBookRequest):
         await audio_model(
             model="gpt-4o-mini-tts",
             voice=request.voice,
-            instructions = audio_book_tts_prompt,
+            instructions = audio_book_tts_prompt + f"You should talk in this accent: {request.accent}.",
             input=text_response.output_text,
             speech_file_path=speech_file_path
         )
         token_count = count_tokens(request.text, "gpt-4.1") + count_tokens(text_response.output_text, "gpt-4.1")
         duration = get_audio_duration_seconds(str(speech_file_path))
-        return cls.AduioBookResponse(
+        data = cls.AduioBookResponse(
             status="success",
             message="Audio book created successfully",
             text=text_response.output_text,
             file_path=str(speech_file_path),
             token_count=token_count,
-            duration=duration
+            duration=duration,
+        )
+        usage = cls.Usage(tokens=token_count, duration_seconds=duration)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="audio_book",
         )
     except Exception as e:
-        return cls.AduioBookResponse(
+        data = cls.AduioBookResponse(
             status="False",
             message=f"An error occurred while processing the request: {str(e)}",
             text="",
             file_path="",
             token_count=0,
-            duration=0
+            duration=0,
+        )
+        usage = cls.Usage(tokens=0, duration_seconds=0)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="audio_book",
+            success=False,
         )

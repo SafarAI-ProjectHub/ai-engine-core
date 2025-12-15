@@ -4,7 +4,7 @@ from util.token_utils import count_tokens
 
 correction_router = APIRouter(tags=["correction"])
 
-@correction_router.post("/correction", response_model=cls.CorrectionResponse)
+@correction_router.post("/correction", response_model=cls.ApiResponse)
 async def get_correction(request: cls.CorrectionRequest):
     try:
         criteria_path = Path(__file__).parent.parent / "config" / "activitywritingcriteria.txt"
@@ -82,16 +82,29 @@ async def get_correction(request: cls.CorrectionRequest):
         output_text = response.output_text
         token_count = count_tokens(request.text, "gpt-4o") + count_tokens(output_text, "gpt-4o")
 
-        return cls.CorrectionResponse(
+        data = cls.CorrectionResponse(
             status="success",
             score=score,
             feedback=feedback,
             token_count=token_count,
         )
+        usage = cls.Usage(tokens=token_count)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="correction",
+        )
     except Exception as e:
-        return cls.CorrectionResponse(
+        data = cls.CorrectionResponse(
             status="False",
             score=0,
             feedback=f"An error occurred while processing the request: {str(e)}",
             token_count=0,
+        )
+        usage = cls.Usage(tokens=0)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="correction",
+            success=False,
         )
