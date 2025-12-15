@@ -2,7 +2,10 @@ from util.config import cls, HTTPException, APIRouter, stream_response, system_p
 from langchain_core.messages import HumanMessage, AIMessage
 import json
 from util.token_utils import count_tokens
+from util.logging_config import get_logger, get_correlation_id
+
 chatbot_router = APIRouter(tags=["chatbot"])
+logger = get_logger(__name__)
 
 # #@chatbot_router.post("/chatbot", response_model=cls.ChatbotResponse)
 # async def chatbot_chat(request: cls.ChatbotRequest):
@@ -50,6 +53,11 @@ async def chatbot_stream(request: cls.ChatbotRequest):
     Returns a streaming response for real-time chat experience.
     """
     try:
+        logger.info(
+            "Chatbot stream request | history_len=%s cid=%s",
+            len(request.conversation_history),
+            get_correlation_id(),
+        )
         # Count tokens for the current message and conversation history
         token_count = count_tokens(request.message, "gpt-4.1")
         for msg in request.conversation_history:
@@ -82,9 +90,17 @@ async def chatbot_stream(request: cls.ChatbotRequest):
                 output_token_count = count_tokens(full_output, "gpt-4.1")
                 total_token_count = token_count + output_token_count
 
+                logger.info(
+                    "Chatbot stream complete | input_tokens=%s output_tokens=%s total_tokens=%s",
+                    token_count,
+                    output_token_count,
+                    total_token_count,
+                )
+
                 # Send completion signal with token information
                 yield f"data: {json.dumps({'content': '', 'done': True, 'token_count': total_token_count})}\n\n"
             except Exception as e:
+                logger.exception("Error while streaming chatbot response: %s", e)
                 yield f"data: {json.dumps({'error': str(e), 'done': True})}\n\n"
 
         return StreamingResponse(
@@ -93,6 +109,7 @@ async def chatbot_stream(request: cls.ChatbotRequest):
             headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
         )
     except Exception as e:
+        logger.exception("Top-level error in chatbot_stream endpoint: %s", e)
         data = cls.ChatbotResponse(
             status="False",
             response=f"An error occurred while processing the request: {str(e)}",

@@ -5,11 +5,13 @@ import os
 import requests as req
 from util.config import cls
 from util.token_utils import count_tokens
+from util.logging_config import get_logger, get_correlation_id
 load_dotenv()
 
 api_key = os.getenv("OPEN_AI_KEY")
 new_chatbot_router = APIRouter(tags=["new_chatbot"])
 client = OpenAI(api_key=api_key)
+logger = get_logger(__name__)
 
 prompt = """You are a friendly, professional, helpful assistant that guides students in learning English.
 You are an expert in English education. You only answer questions related to learning English.
@@ -24,11 +26,17 @@ async def new_conversation():
     try:
         coversationID = client.conversations.create()
         data = {"conversation_id": coversationID.id}
+        logger.info(
+            "New conversation created | conversation_id=%s cid=%s",
+            coversationID.id,
+            get_correlation_id(),
+        )
         return cls.build_response(
             data=data,
             endpoint_key="new_chatbot_new_conversation",
         )
     except Exception as e:
+        logger.exception("Error creating new conversation: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
     
 
@@ -52,12 +60,19 @@ async def delete_conversation(conversation_id: str):
                 "details": response.json(),
             }
             success = False
+        logger.info(
+            "Delete conversation | conversation_id=%s status_code=%s success=%s",
+            conversation_id,
+            response.status_code,
+            success,
+        )
         return cls.build_response(
             data=data,
             endpoint_key="new_chatbot_delete_conversation",
             success=success,
         )
     except Exception as e:
+        logger.exception("Error deleting conversation | conversation_id=%s error=%s", conversation_id, e)
         raise HTTPException(status_code=500, detail=str(e))
     
 
@@ -80,12 +95,21 @@ async def chat(request: cls.NewChatbotRequest):
             token_count=token_count,
         )
         usage = cls.Usage(tokens=token_count)
+
+        logger.info(
+            "New chatbot message | conversation_id=%s tokens=%s cid=%s",
+            request.conversation_id,
+            token_count,
+            get_correlation_id(),
+        )
+
         return cls.build_response(
             data=data,
             usage=usage,
             endpoint_key="new_chatbot_chat",
         )
     except Exception as e:
+        logger.exception("Error in new_chatbot chat endpoint: %s", e)
         data = cls.NewChatbotResponse(
             status="False",
             response=f"An error occurred while processing the request: {str(e)}",

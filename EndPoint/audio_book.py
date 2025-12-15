@@ -2,11 +2,21 @@ from util.config import client, cls, Path, APIRouter
 from util.audio_model import audio_model
 from util.token_utils import count_tokens
 from util.audio_utils import get_audio_duration_seconds
+from util.logging_config import get_logger, get_correlation_id
+
 audio_book_router = APIRouter(tags=["audio-book"])
+logger = get_logger(__name__)
 
 @audio_book_router.post("/audio-book", response_model=cls.ApiResponse)
 async def audio_book(request: cls.AduioBookRequest):
     try:
+        logger.info(
+            "Audio book request received | id=%s voice=%s accent=%s cid=%s",
+            request.id,
+            request.voice,
+            request.accent,
+            get_correlation_id(),
+        )
         audio_book_path = Path(__file__).parent.parent/ "config" / "audiobook_prompt.txt"
         with open(audio_book_path, "r", encoding="utf-8") as file:
             audio_book_prompt = file.read()
@@ -44,12 +54,21 @@ async def audio_book(request: cls.AduioBookRequest):
             duration=duration,
         )
         usage = cls.Usage(tokens=token_count, duration_seconds=duration)
+        logger.info(
+            "Audio book created | id=%s tokens=%s duration=%.2fs path=%s",
+            request.id,
+            token_count,
+            duration,
+            str(speech_file_path),
+        )
+
         return cls.build_response(
             data=data,
             usage=usage,
             endpoint_key="audio_book",
         )
     except Exception as e:
+        logger.exception("Error in audio_book endpoint: %s", e)
         data = cls.AduioBookResponse(
             status="False",
             message=f"An error occurred while processing the request: {str(e)}",

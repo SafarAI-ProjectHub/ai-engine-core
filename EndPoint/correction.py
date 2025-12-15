@@ -1,12 +1,19 @@
 from util.config import client, cls, Path, HTTPException, APIRouter, prs
 from util.complition_model import complition_model
 from util.token_utils import count_tokens
+from util.logging_config import get_logger, get_correlation_id
 
 correction_router = APIRouter(tags=["correction"])
+logger = get_logger(__name__)
 
 @correction_router.post("/correction", response_model=cls.ApiResponse)
 async def get_correction(request: cls.CorrectionRequest):
     try:
+        logger.info(
+            "Correction request | question_present=%s cid=%s",
+            bool(request.question),
+            get_correlation_id(),
+        )
         criteria_path = Path(__file__).parent.parent / "config" / "activitywritingcriteria.txt"
         example_path = Path(__file__).parent.parent / "config" / "writingexamples.txt"
                 # read the criteria from the file
@@ -89,12 +96,20 @@ async def get_correction(request: cls.CorrectionRequest):
             token_count=token_count,
         )
         usage = cls.Usage(tokens=token_count)
+
+        logger.info(
+            "Correction complete | score=%s tokens=%s",
+            score,
+            token_count,
+        )
+
         return cls.build_response(
             data=data,
             usage=usage,
             endpoint_key="correction",
         )
     except Exception as e:
+        logger.exception("Error in get_correction endpoint: %s", e)
         data = cls.CorrectionResponse(
             status="False",
             score=0,

@@ -6,6 +6,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, FileResponse
 from dotenv import load_dotenv
 import uvicorn
+from util.logging_config import get_logger, get_correlation_id
 
 load_dotenv()
 
@@ -17,6 +18,7 @@ realtime = APIRouter(tags=["realtime"], prefix="/realtime")
 
 
 active_sessions = {}  # Store session IDs temporarily
+logger = get_logger(__name__)
 
 
 @realtime.get("/new")
@@ -36,7 +38,15 @@ async def create_session(request: Request):
     topic = data.get("topic", "")
     personality = data.get("personality", "Friendly Mentor")
     avatar = data.get("avatar", "friendly")
-    print(f"Creating session for level: {level}, theme: {theme}, topic: {topic}, personality: {personality}, avatar: {avatar}")
+    logger.info(
+        "Creating realtime session | level=%s theme=%s topic=%s personality=%s avatar=%s cid=%s",
+        level,
+        theme,
+        topic,
+        personality,
+        avatar,
+        get_correlation_id(),
+    )
 
     level_instructions = {
         "Beginner": "Use very simple English, short sentences, and speak slowly. Avoid difficult vocabulary. Encourage the student gently.",
@@ -61,11 +71,10 @@ async def create_session(request: Request):
         "Patient Teacher": "Be calm, understanding, and methodical. Take time to explain things clearly and repeat when necessary. Use a soothing tone and be very patient with mistakes. Provide gentle guidance and reassurance."
     }
 
-    print(f"Creating session for level: {level}, theme: {theme}")
-    print(f"Level instructions: {level_instructions.get(level, '')}")
-    print(f"Theme focus: {theme_prompts.get(theme, '')}")
+    logger.debug("Level instructions: %s", level_instructions.get(level, ""))
+    logger.debug("Theme focus: %s", theme_prompts.get(theme, ""))
     if topic:
-        print(f"Specific topic: {topic}")
+        logger.debug("Specific topic: %s", topic)
 
     instruction = f"""You are "Safar AI", an English speaking tutor with the personality of a {personality}. Your goal is to help students improve their spoken English through engaging, personality-driven conversations.
 
@@ -131,12 +140,15 @@ Remember to embody your {personality} personality throughout the entire conversa
 
             data = await resp.json()
             session_id = data.get("id")
-            print(f"Created session with ID: {session_id}")
+            logger.info("Created realtime session with ID: %s", session_id)
             if session_id:
                 data["last_activity"] = time.time()
                 active_sessions[session_id] = data
-                print(f"Stored session in active_sessions. Total sessions: {len(active_sessions)}")
-                print(f"Active session IDs: {list(active_sessions.keys())}")
+                logger.info(
+                    "Stored session in active_sessions | total_sessions=%s ids=%s",
+                    len(active_sessions),
+                    list(active_sessions.keys()),
+                )
             return data
 
 
@@ -146,8 +158,11 @@ async def keep_alive(request: Request):
     data = await request.json()
     session_id = data.get("session_id")
     
-    print(f"Keep-alive request for session: {session_id}")
-    print(f"Active sessions: {list(active_sessions.keys())}")
+    logger.info(
+        "Keep-alive request | session_id=%s active_ids=%s",
+        session_id,
+        list(active_sessions.keys()),
+    )
     
     if not session_id or session_id not in active_sessions:
         return JSONResponse(
@@ -157,7 +172,7 @@ async def keep_alive(request: Request):
     
     # Update the session timestamp to keep it "active"
     active_sessions[session_id]["last_activity"] = time.time()
-    print(f"Updated last activity for session: {session_id}")
+    logger.debug("Updated last activity for session | session_id=%s", session_id)
     return {"status": "Session kept alive", "timestamp": active_sessions[session_id]["last_activity"]}
 
 @realtime.post("/close")
@@ -175,16 +190,19 @@ async def close_session(request: Request):
         
         if session_id in active_sessions:
             del active_sessions[session_id]
-            print(f"Closed session with ID: {session_id}")
+            logger.info("Closed session | session_id=%s", session_id)
             return {"status": "Session closed"}
         else:
-            print(f"Attempted to close non-existent session with ID: {session_id}")
+            logger.warning(
+                "Attempted to close non-existent session | session_id=%s",
+                session_id,
+            )
             return JSONResponse(
                 status_code=404,
                 content={"error": "Session not found"}
             )
     except Exception as e:
-        print(f"Error closing session: {str(e)}")
+        logger.exception("Error closing session | error=%s", str(e))
         return JSONResponse(
             status_code=500,
             content={"error": f"Error closing session: {str(e)}"}
