@@ -1,209 +1,215 @@
-# 🧠 AI Engine Core – Writing & Activity Grading with GPT-4
+## SafarAI AI Engine Core
 
-This project powers AI-based evaluation for student writing tasks using OpenAI’s GPT-4. Designed for the [Safar AI](https://safarai.org) platform, it supports **rubric-based scoring**, **structured feedback**, and **modular architecture** for different assessment types like placement tests and writing activities.
+SafarAI AI Engine Core is a FastAPI-based backend that powers English-learning features such as audiobook generation, text‑to‑speech, translation, writing correction, chatbots, and real‑time spoken conversation practice.
 
----
-
-## 🔍 Features
-
-- ✅ **Modular Architecture:** Easily extendable to support multiple grading types (e.g., placement, essay).
-- 🧠 **Automated Scoring:** Uses GPT-4 to grade student input based on configurable rubrics.
-- 📝 **Structured Feedback:** Returns JSON with total score and detailed feedback.
-- ⚙️ **Configurable Rubrics:** Criteria are defined in external files (e.g., `writingcriteria.txt`).
-- 🌐 **API-Ready:** Includes FastAPI interface for integration with frontend or other services.
-- 📁 **Notebook-Friendly:** Works with Jupyter notebooks for development or experimentation.
+The service wraps OpenAI models behind a consistent JSON API with shared response envelopes, token accounting, and utilities for managing generated audio files.
 
 ---
 
-## 🗂 Project Structure
+## Project Structure
 
-```
-ai-engine-core/
-│
-├── engine/                  # Shared logic (to be added)
-├── modules/
-│   ├── placement/           # Placement test grading (future)
-│   └── activities/          # Lesson writing activity grading (future)
-│
-├── config/
-│   └── writingcriteria.txt  # Rubric for writing correction
-│
-├── api/
-│   └── main.py              # FastAPI entrypoint
-│
-├── data/                    # Example input data (optional)
-├── notebooks/               # Development notebooks (e.g., activity_dev.ipynb)
-├── tests/                   # Unit tests
-├── tools/                   # Utility scripts
-│
-├── requirements.txt         # Python dependencies
-├── .env                     # OpenAI key (NOT committed)
-└── README.md                # You're reading it!
-```
+[main.py](main.py) is the main entrypoint used in local development and most deployments. It wires together the core app from `util.config` and includes all routers.
+
+- `main.py` – starts the FastAPI app and includes all routers
+- `util/`
+  - `config.py` – app factory, Async OpenAI client, CORS, `root_path` handling, shared imports
+  - `classes.py` – shared request/response models and the generic `ApiResponse` envelope
+  - `audio_model.py`, `audio_utils.py` – helpers for TTS and audio duration
+  - `complition_model.py`, `parsingoutput.py`, `token_utils.py` – LLM response helpers and token counting
+  - `del_speech_files.py` – maintenance endpoint for cleaning up generated audio
+- `EndPoint/`
+  - `Endpoint.py` – alternative entrypoint wiring the same routers (used in some deployments)
+  - `audio_book.py` – audiobook generation endpoint
+  - `text_to_speech.py` – generic TTS endpoint
+  - `translation.py` – text translation endpoint
+  - `correction.py` – writing correction/scoring endpoint
+  - `chatbot.py` – streaming chatbot endpoint (server‑sent events)
+  - `new_chatbot.py` – OpenAI Conversations API based chatbot endpoints
+- `safarai_realtime/backend/session.py` – real‑time WebRTC session helper endpoints
+- `safarai_realtime/frontend/` – HTML frontend for the real‑time speaking practice
+- `safarai_chatbot/` – HTML + backend helpers for chatbot frontends
+- `speechfiles/` – generated `.mp3` audio files (audiobook and TTS outputs)
+- `Docs/` – additional documentation (deployment, legacy correction docs, audiobook design)
 
 ---
 
-## ✅ Requirements
+## Installation & Setup
+
+### Requirements
 
 - Python 3.9+
-- OpenAI GPT-4 access key
-- Virtual environment (recommended)
+- OpenAI API key with access to the referenced models
 
-### 🧪 Setup Instructions
+### Install
 
 ```bash
-git clone https://github.com/your-org/ai-engine-core.git
+git clone https://github.com/SafarAI-ProjectHub/ai-engine-core.git
 cd ai-engine-core
-python -m venv .
-source Scripts/activate        # Or source venv/bin/activate on Linux/Mac
+
+python -m venv venv
+venv\Scripts\activate            # Windows
+# or: source venv/bin/activate   # macOS / Linux
+
 pip install -r requirements.txt
 ```
 
----
-
-## 🔐 .env File
+### Environment variables
 
 Create a `.env` file in the project root:
 
 ```env
 OPEN_AI_KEY=your_openai_api_key
+# Optional: mount the API under /ai when running behind a reverse proxy
+USE_ROOT_PATH=true
+
+# Logging configuration (optional)
+LOG_LEVEL=INFO             # DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG_TO_FILE=false          # true to also log to a rotating file
+LOG_FILE=logs/app.log      # file path if LOG_TO_FILE=true
 ```
 
-**⚠️ Do NOT share this key. Make sure `.env` is in `.gitignore`.**
+- `OPEN_AI_KEY` is required by `util.config.client` and by the `new_chatbot` module.
+- `USE_ROOT_PATH`:
+  - if `true` → FastAPI is created with `root_path="/ai"` so all URLs are effectively mounted under `/ai` when reverse‑proxied.
+  - if `false` (default) → the app is mounted at `/`.
 
 ---
 
-## ▶️ Running the API (FastAPI)
+## Running the API
+
+### Local development
+
+The simplest way to run everything locally is:
 
 ```bash
-python api/main.py
+python main.py
 ```
 
-Access the API at:
+This starts Uvicorn on:
 
-```
-http://0.0.0.0:9999/
-```
+- `http://0.0.0.0:9999/` (no root path)
+- or via your reverse proxy as configured if `USE_ROOT_PATH=true`
 
----
-
-## 📡 API Endpoints
-
-### `GET /`
-
-Simple health check.
-
-```json
-{ "Hello": "World" }
-```
-
----
-
-### `POST /correction`
-
-Send a student’s writing for AI-based correction.
-
-#### Sample Request
-
-```json
-{
-  "question": "Describe your last vacation.",
-  "text": "I goed to the beach and it was fun."
-}
-```
-
-#### Sample Response
-
-```json
-{
-  "score": 17,
-  "feedback": "You made a few grammar mistakes like 'goed' instead of 'went'. Try to add more detail next time..."
-}
-```
-
-> Internally uses GPT-4 and the `writingcriteria.txt` rubric to return a structured evaluation.
-
----
-
-## 🧪 Rubric Format
-
-File: `config/writingcriteria.txt`
-
-```
-1. Task Achievement / Content Relevance
-2. Coherence and Cohesion
-3. Lexical Resource (Vocabulary)
-4. Grammatical Range and Accuracy
-5. Spelling, Punctuation, Mechanics
-```
-
-Each criterion is scored on a scale of: `0`, `1`, `3`, or `5`.
-
----
-
-## 🧠 Technologies Used
-
-| Tool           | Purpose                         |
-|----------------|----------------------------------|
-| FastAPI        | API development                 |
-| Uvicorn        | ASGI server                     |
-| Pydantic       | Input validation                |
-| OpenAI API     | GPT-4 language model            |
-| python-dotenv  | Load secret keys from `.env`    |
-
----
-
-## 🧪 Testing (Optional)
-
-To test logic in isolation (planned):
+You can also run Uvicorn directly:
 
 ```bash
-pytest tests/test_*.py
+uvicorn main:app --host 0.0.0.0 --port 9999 --reload
 ```
 
-You can also create and test logic via:
+### Interactive API docs
 
-```python
-from modules.activities.grader import get_correction
-result = get_correction("Describe your last holiday.", "I goed to beach and swam.")
-```
+FastAPI Swagger UI and ReDoc are enabled in `util.config`:
 
----
-
-## 🚀 Deployment (Production)
-
-Recommended command:
-
-```bash
-uvicorn api.main:app --host 0.0.0.0 --port 9999 --reload
-```
-
-Or use a platform like:
-- [Render](https://render.com)
-- [Railway](https://railway.app)
-- [Fly.io](https://fly.io)
+- Swagger UI: `/docs`
+- ReDoc: `/redoc`
+- OpenAPI schema: `/openapi.json`
 
 ---
 
-## 🛡 Security Best Practices
+## Logging
 
-- Use `.env` to protect your API key.
-- Use HTTPS for deployed versions.
-- Add authentication or rate limiting for public APIs.
-- Consider containerization (e.g., Docker) for production.
+The backend uses Python’s built-in `logging` with a shared configuration in `util/logging_config.py`:
+
+- Logs are emitted to stdout with lines like:
+
+  `2025-01-01 12:00:00 | INFO | endpoint.text_to_speech | <correlation-id> | Text-to-speech request ...`
+
+- A per-request **correlation ID** is generated by middleware in `util.config`:
+  - Requests can pass their own ID via `X-Request-ID` or `X-Correlation-ID`.
+  - The ID is included in all logs for that request and returned in the `X-Request-ID` response header.
+
+You can control logging via environment variables:
+
+- `LOG_LEVEL` – default is `INFO` in all environments.
+- `LOG_TO_FILE` – when `true`, logs are also written to a rotating file at `LOG_FILE` (default `logs/app.log`).
+
+Key places where logs are emitted:
+
+- Entry/exit of main endpoints in `EndPoint/` (audio book, TTS, translation, correction, chatbots).
+- Realtime session lifecycle in `safarai_realtime/backend/session.py`.
+- Calls to OpenAI models via `util/audio_model.py` and `util/complition_model.py`.
+- Maintenance tasks like `util/del_speech_files.py`.
+
+When debugging a specific request, filter by the correlation ID to see everything that happened across services for that call.
+
+If `USE_ROOT_PATH=true` and your reverse proxy forwards `/ai/` to this app, the docs will be available at:
+
+- `https://your-domain/ai/docs`
+- `https://your-domain/ai/redoc`
 
 ---
 
-## 📌 Future Plans
+## Shared API Envelope & Models
 
-- [ ] Add `placement/` grading logic
-- [ ] Refactor grading logic to `engine/`
-- [ ] Enable multi-language feedback
-- [ ] Add support for H5P JSON or SCORM input
-- [ ] Test coverage and CI integration
+All JSON endpoints (except the streaming chatbot endpoint) return a common envelope defined in `util/classes.py`:
+
+- `ApiResponse[T]`
+  - `success: bool` – `true` if the endpoint completed successfully
+  - `data: T` – endpoint‑specific payload (see per‑endpoint docs)
+  - `usage: Usage | null`
+    - `tokens: int | null` – approximate token usage for the request/response
+    - `duration_seconds: float | null` – audio duration in seconds where applicable
+    - `session_seconds: float | null` – for long‑running sessions (currently unused in most endpoints)
+  - `meta: Meta | null`
+    - `endpoint_key: string | null` – stable key such as `"audio_book"`, `"translation"`, `"correction"`, etc.
+    - `extra: object | null` – optional additional metadata
+
+The request/response models used inside `data` include:
+
+- `AduioBookRequest` / `AduioBookResponse`
+- `TextToSpeechRequest` / `TextToSpeechResponse`
+- `translationRequest` / `translationResponse`
+- `CorrectionRequest` / `CorrectionResponse`
+- `ChatbotRequest` / `ChatbotResponse`
+- `NewChatbotRequest` / `NewChatbotResponse`
+
+A detailed, per‑model breakdown is provided in the API documentation file described below.
 
 ---
 
-## 🪄 License
+## Endpoints Overview
 
-This project is for educational and demo purposes.
+All paths below are shown without any `root_path`. If `USE_ROOT_PATH=true`, prefix them with `/ai` when calling through your reverse proxy (for example `/ai/audio-book`).
+
+High‑level list (full details in `Docs/API_Endpoints.md`):
+
+- `GET /` – simple health check
+- `POST /audio-book` – generate an audiobook from text using GPT + TTS
+- `POST /text-to-speech` – generic text‑to‑speech for arbitrary text
+- `POST /translation` – translate text into a target language with a JSON response
+- `POST /correction` – score and correct writing using rubric‑based evaluation
+- `POST /chatbot/stream` – streaming chatbot responses via server‑sent events
+- `GET /new_conversation` – create a new OpenAI conversation for the guided English chatbot
+- `DELETE /delete_conversation` – delete an existing OpenAI conversation
+- `POST /chatbot` – send a message to the guided English chatbot in an existing conversation
+- `GET /del-speech-files` – delete all generated `.mp3` files under `speechfiles/`
+- Real‑time speaking practice (`/realtime` prefix, see below)
+  - `GET /realtime/new` – serve the WebRTC call frontend
+  - `POST /realtime/session` – create a new OpenAI real‑time session
+  - `POST /realtime/keep-alive` – keep a real‑time session alive
+  - `POST /realtime/close` – close a real‑time session and remove it from memory
+  - `GET /realtime/debug/sessions` – inspect active real‑time sessions (debug only)
+
+For complete schemas, examples, and behavior notes, see:
+
+- [Docs/API_Endpoints.md](Docs/API_Endpoints.md)
+
+---
+
+## Additional Documentation
+
+Under `Docs/` you will find:
+
+- `AI_Engine_Deployment_Guide.md` – step‑by‑step deployment to Ubuntu + Apache with systemd
+- `API_Correction_Documentation.md` – focused documentation for an earlier version of the `/correction` API
+- `Audiobook_Enhancement_Documentation.md` – design notes and plans for richer audiobook generation
+
+`Docs/API_Endpoints.md` is intended to be the canonical source of truth for the current endpoints; other documents describe historical behavior, deployment, or design ideas.
+
+---
+
+## License & Usage
+
+This codebase is intended for educational and SafarAI project use. Ensure you keep your OpenAI API keys secret and apply appropriate authentication, logging, and rate limiting before exposing the service on the public internet.
+
+

@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from util.config import app, uvicorn
+from util.config import app, uvicorn, cls
 from safarai_realtime.backend import realtime
 from audio_book import audio_book_router as audio_book_router
 from text_to_speech import text_to_speech_router as text_to_speech_router
@@ -14,7 +14,11 @@ from util.del_speech_files import del_speech_files_router as del_speech_files_ro
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    data = {"Hello": "World"}
+    return cls.build_response(
+        data=data,
+        endpoint_key="root",
+    )
 app.include_router(new_chatbot_router)
 
 app.include_router(realtime)

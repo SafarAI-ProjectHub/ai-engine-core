@@ -6,18 +6,24 @@ from openai import AsyncOpenAI, audio
 import dotenv 
 import os 
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi import FastAPI, HTTPException, APIRouter, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 import uvicorn
 from util import parsingoutput as prs
 from util import classes as cls
+from util.logging_config import configure_logging, logging_middleware, get_logger
 from safarai_chatbot.chatbot.chatbot import stream_response, system_prompt
 
 
 try: 
     # Load environment variables from .env file
     dotenv.load_dotenv()
+
+    # Configure logging once at startup
+    configure_logging()
+    logger = get_logger(__name__)
+
     key = os.getenv("OPEN_AI_KEY")
     client = AsyncOpenAI(api_key=key)
 
@@ -34,6 +40,9 @@ try:
         openapi_url="/openapi.json"
     )
 
+    # Add logging middleware for request/response logging with correlation IDs
+    app.middleware("http")(logging_middleware)
+
     # Add CORS middleware
     app.add_middleware(
         CORSMiddleware,
@@ -43,6 +52,19 @@ try:
         allow_headers=["*"],
     )
 
+    @app.exception_handler(Exception)
+    async def unhandled_exception_handler(request: Request, exc: Exception):
+        """
+        Catch-all exception handler to make sure crashes are logged centrally.
+        Let FastAPI's default handler deal with HTTPException separately.
+        """
+        logger.exception("Unhandled exception: %s", exc)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error"},
+        )
+
 
 except Exception as e:
-    raise HTTPException(status_code = 500, detail = str(e))
+    # At this early stage logger may not be available yet, so re-raise as HTTPException
+    raise HTTPException(status_code=500, detail=str(e))

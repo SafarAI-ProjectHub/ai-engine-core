@@ -1,11 +1,19 @@
 from util.config import client, cls, Path, HTTPException, APIRouter, prs
 from util.complition_model import complition_model
+from util.token_utils import count_tokens
+from util.logging_config import get_logger, get_correlation_id
 
 correction_router = APIRouter(tags=["correction"])
+logger = get_logger(__name__)
 
-@correction_router.post("/correction", response_model=cls.CorrectionResponse)
+@correction_router.post("/correction", response_model=cls.ApiResponse)
 async def get_correction(request: cls.CorrectionRequest):
     try:
+        logger.info(
+            "Correction request | question_present=%s cid=%s",
+            bool(request.question),
+            get_correlation_id(),
+        )
         criteria_path = Path(__file__).parent.parent / "config" / "activitywritingcriteria.txt"
         example_path = Path(__file__).parent.parent / "config" / "writingexamples.txt"
                 # read the criteria from the file
@@ -76,10 +84,42 @@ async def get_correction(request: cls.CorrectionRequest):
         
         # Get feedback safely
         feedback = response_data.get("feedback", "No feedback available")
-        
-        return cls.CorrectionResponse(
+
+        # Count tokens for input and model output text
+        output_text = response.output_text
+        token_count = count_tokens(request.text, "gpt-4o") + count_tokens(output_text, "gpt-4o")
+
+        data = cls.CorrectionResponse(
+            status="success",
             score=score,
-            feedback=feedback
+            feedback=feedback,
+            token_count=token_count,
+        )
+        usage = cls.Usage(tokens=token_count)
+
+        logger.info(
+            "Correction complete | score=%s tokens=%s",
+            score,
+            token_count,
+        )
+
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="correction",
         )
     except Exception as e:
-        raise HTTPException(status_code = 500, detail = str(e))
+        logger.exception("Error in get_correction endpoint: %s", e)
+        data = cls.CorrectionResponse(
+            status="False",
+            score=0,
+            feedback=f"An error occurred while processing the request: {str(e)}",
+            token_count=0,
+        )
+        usage = cls.Usage(tokens=0)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="correction",
+            success=False,
+        )

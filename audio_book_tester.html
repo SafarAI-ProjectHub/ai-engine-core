@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafarAI Audio Book Tester</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" href="logo1.png" type="image/x-icon">
+<style>
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+}
+.container {
+    text-align: left;
+    background: rgba(255, 255, 255, 0.12);
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: min(98vw, 1200px);
+    height: min(98vh, 800px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+h1 {
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    font-size: 1.8rem;
+}
+.subtitle {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin-bottom: 8px;
+}
+.layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+}
+.panel {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+}
+label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+input[type="text"],
+textarea,
+select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+    resize: vertical;
+    min-height: 40px;
+}
+textarea {
+    min-height: 120px;
+    max-height: 260px;
+}
+input::placeholder,
+textarea::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+button {
+    background: linear-gradient(135deg, #00b894, #00a085);
+    border: none;
+    padding: 12px 22px;
+    margin-top: 8px;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    align-self: flex-start;
+}
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 184, 148, 0.4);
+}
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.status-ok {
+    background: #00b894;
+}
+.status-error {
+    background: #ff6b6b;
+}
+.metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.8rem;
+    opacity: 0.95;
+}
+.metric {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.audio-box {
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+audio {
+    width: 100%;
+    margin-top: 6px;
+}
+pre {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 0.8rem;
+    color: #f8f8f8;
+    overflow: auto;
+    flex: 1;
+}
+.error-box {
+    margin-top: 6px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255, 107, 107, 0.16);
+    border: 1px solid rgba(255, 107, 107, 0.6);
+    font-size: 0.8rem;
+}
+@media (max-width: 900px) {
+    .container {
+        height: auto;
+        min-height: 100vh;
+        margin: 8px;
+    }
+    .layout {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div>
+        <h1>📖 Audio Book API Tester</h1>
+        <div class="subtitle">
+            Send text to the <code>/audio-book</code> endpoint, then preview the generated MP3 and inspect the JSON response.
+        </div>
+        <div class="status-pill" id="statusPill">
+            <span class="status-dot status-error" id="statusDot"></span>
+            <span id="statusText">Idle – no request sent yet</span>
+        </div>
+    </div>
+
+    <div class="layout">
+        <!-- Left: Request form -->
+        <div class="panel">
+            <div>
+                <label for="textInput">Text for audio book</label>
+                <textarea id="textInput" placeholder="Enter the story or content to convert into an audio book..."></textarea>
+            </div>
+            <div>
+                <label for="idInput">Request ID</label>
+                <input type="text" id="idInput" placeholder="Auto-generated if left empty">
+            </div>
+            <div>
+                <label for="voiceSelect">Voice</label>
+                <select id="voiceSelect">
+                    <option value="alloy">Alloy</option>
+                    <option value="verse">Verse</option>
+                    <option value="sage">Sage</option>
+                    <option value="narrator">Narrator</option>
+                </select>
+            </div>
+            <button id="sendBtn" onclick="sendRequest()">Send Request</button>
+        </div>
+
+        <!-- Right: Response -->
+        <div class="panel">
+            <div class="metrics" id="metrics">
+                <div class="metric">Duration: <span id="durationMetric">-</span></div>
+                <div class="metric">Tokens: <span id="tokensMetric">-</span></div>
+            </div>
+            <div class="audio-box" id="audioBox" style="display:none;">
+                <div style="font-size:0.85rem; margin-bottom:4px;">Generated audio file</div>
+                <div id="filePathText" style="font-size:0.75rem; opacity:0.8;"></div>
+                <audio id="audioPlayer" controls></audio>
+            </div>
+            <pre id="jsonOutput">{}</pre>
+            <div id="errorBox" class="error-box" style="display:none;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API_BASE = 'http://localhost:9999';
+
+function generateId() {
+    const now = new Date();
+    return 'req_' + now.getFullYear()
+        + String(now.getMonth() + 1).padStart(2, '0')
+        + String(now.getDate()).padStart(2, '0')
+        + '_' + now.getTime();
+}
+
+function setStatus(ok, text) {
+    const dot = document.getElementById('statusDot');
+    const pillText = document.getElementById('statusText');
+    dot.className = 'status-dot ' + (ok ? 'status-ok' : 'status-error');
+    pillText.textContent = text;
+}
+
+async function sendRequest() {
+    const text = document.getElementById('textInput').value.trim();
+    let id = document.getElementById('idInput').value.trim();
+    const voice = document.getElementById('voiceSelect').value;
+    const sendBtn = document.getElementById('sendBtn');
+    const jsonOutput = document.getElementById('jsonOutput');
+    const errorBox = document.getElementById('errorBox');
+    const audioBox = document.getElementById('audioBox');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const filePathText = document.getElementById('filePathText');
+    const durationMetric = document.getElementById('durationMetric');
+    const tokensMetric = document.getElementById('tokensMetric');
+
+    errorBox.style.display = 'none';
+    errorBox.textContent = '';
+
+    if (!text) {
+        errorBox.style.display = 'block';
+        errorBox.textContent = 'Please enter some text for the audio book.';
+        setStatus(false, 'Validation error');
+        return;
+    }
+    if (!id) {
+        id = generateId();
+        document.getElementById('idInput').value = id;
+    }
+
+    const payload = {
+        id: id,
+        text: text,
+        voice: voice
+    };
+
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending...';
+    setStatus(false, 'Sending request...');
+
+    const start = performance.now();
+    try {
+        const response = await fetch(API_BASE + '/audio-book', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const elapsed = Math.round(performance.now() - start);
+        if (!response.ok) {
+            const textErr = await response.text();
+            errorBox.style.display = 'block';
+            errorBox.textContent = 'HTTP ' + response.status + ': ' + textErr;
+            jsonOutput.textContent = '{}';
+            audioBox.style.display = 'none';
+            durationMetric.textContent = '-';
+            tokensMetric.textContent = '-';
+            setStatus(false, 'Request failed (' + elapsed + ' ms)');
+            return;
+        }
+
+        const envelope = await response.json();
+        jsonOutput.textContent = JSON.stringify(envelope, null, 2);
+
+        const data = envelope && envelope.data ? envelope.data : {};
+
+        tokensMetric.textContent = data.token_count != null ? String(data.token_count) : '-';
+        durationMetric.textContent = data.duration != null ? data.duration + ' s' : '-';
+
+        if (data.file_path) {
+            audioBox.style.display = 'block';
+            filePathText.textContent = data.file_path;
+            const fp = String(data.file_path);
+            let url = null;
+            if (/^https?:\/\//i.test(fp)) {
+                url = fp;
+            } else if (!fp.includes(':')) {
+                url = API_BASE.replace('/ai', '') + '/' + fp.replace(/^\.?\//, '');
+            }
+            if (url) {
+                audioPlayer.src = url;
+            } else {
+                audioPlayer.removeAttribute('src');
+            }
+        } else {
+            audioBox.style.display = 'none';
+            audioPlayer.removeAttribute('src');
+        }
+
+        const ok = envelope && typeof envelope.success === 'boolean' ? envelope.success : (data.status === 'success');
+        setStatus(ok, (ok ? 'Success' : 'Completed with status: ' + (data.status || 'unknown')) + ' (' + elapsed + ' ms)');
+    } catch (err) {
+        errorBox.style.display = 'block';
+        errorBox.textContent = 'Network or parsing error: ' + err.message;
+        setStatus(false, 'Request error');
+    } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send Request';
+    }
+}
+</script>
+</body>
+</html>
+
+

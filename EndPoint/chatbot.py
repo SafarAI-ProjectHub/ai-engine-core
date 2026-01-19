@@ -1,8 +1,11 @@
 from util.config import cls, HTTPException, APIRouter, stream_response, system_prompt, StreamingResponse
 from langchain_core.messages import HumanMessage, AIMessage
 import json
+from util.token_utils import count_tokens
+from util.logging_config import get_logger, get_correlation_id
 
 chatbot_router = APIRouter(tags=["chatbot"])
+logger = get_logger(__name__)
 
 # #@chatbot_router.post("/chatbot", response_model=cls.ChatbotResponse)
 # async def chatbot_chat(request: cls.ChatbotRequest):
@@ -50,34 +53,73 @@ async def chatbot_stream(request: cls.ChatbotRequest):
     Returns a streaming response for real-time chat experience.
     """
     try:
+        logger.info(
+            "Chatbot stream request | history_len=%s cid=%s",
+            len(request.conversation_history),
+            get_correlation_id(),
+        )
+        # Count tokens for the current message and conversation history
+        token_count = count_tokens(request.message, "gpt-4.1")
+        for msg in request.conversation_history:
+            token_count += count_tokens(msg.get("content", ""), "gpt-4.1")
+
         # Build conversation history with system prompt
         messages = [system_prompt]
-        
+
         # Add conversation history if provided
         for msg in request.conversation_history:
             if msg.get("role") == "user":
                 messages.append(HumanMessage(content=msg.get("content", "")))
             elif msg.get("role") == "assistant":
                 messages.append(AIMessage(content=msg.get("content", "")))
-        
+
         # Add current user message
         messages.append(HumanMessage(content=request.message))
-        
+
         def generate_stream():
             try:
+                # Collect all output chunks to measure output token usage
+                output_chunks = []
                 for chunk in stream_response(messages):
                     if chunk.content:
+                        output_chunks.append(chunk.content)
                         # Format as Server-Sent Events
                         yield f"data: {json.dumps({'content': chunk.content, 'done': False})}\n\n"
-                # Send completion signal
-                yield f"data: {json.dumps({'content': '', 'done': True})}\n\n"
+
+                full_output = "".join(output_chunks)
+                output_token_count = count_tokens(full_output, "gpt-4.1")
+                total_token_count = token_count + output_token_count
+
+                logger.info(
+                    "Chatbot stream complete | input_tokens=%s output_tokens=%s total_tokens=%s",
+                    token_count,
+                    output_token_count,
+                    total_token_count,
+                )
+
+                # Send completion signal with token information
+                yield f"data: {json.dumps({'content': '', 'done': True, 'token_count': total_token_count})}\n\n"
             except Exception as e:
+                logger.exception("Error while streaming chatbot response: %s", e)
                 yield f"data: {json.dumps({'error': str(e), 'done': True})}\n\n"
-        
+
         return StreamingResponse(
             generate_stream(),
             media_type="text/plain",
             headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("Top-level error in chatbot_stream endpoint: %s", e)
+        data = cls.ChatbotResponse(
+            status="False",
+            response=f"An error occurred while processing the request: {str(e)}",
+            conversation_history=request.conversation_history,
+            token_count=0,
+        )
+        usage = cls.Usage(tokens=0)
+        return cls.build_response(
+            data=data,
+            usage=usage,
+            endpoint_key="chatbot_stream",
+            success=False,
+        )
